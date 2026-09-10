@@ -416,23 +416,23 @@
   /* ------------------------------------------------------------ falas personalizadas */
   function entryLine() {
     return {
-      dica: 'Você disse que, se começasse amanhã, seguiria **a dica de um amigo ou parente**. É o jeito mais comum de começar. E é exatamente assim que a maioria perde junto.',
-      influencer: 'Você disse que faria **o que algum influenciador mostrou**. Faz sentido, eles fazem parecer fácil. Só que ninguém posta o dia ruim.',
-      sozinho: 'Você disse que tentaria **aprender sozinho pelo YouTube**. Foi exatamente o que eu fiz. E me custou caro.',
-      alguem: 'Você disse que procuraria **alguém de confiança pra te ensinar**. Esse é o melhor instinto que você pode ter.'
+      dica: 'Você disse que, se começasse amanhã, seguiria a dica de um amigo. É o jeito mais comum de começar. E é exatamente assim que a maioria perde junto.',
+      influencer: 'Você disse que faria o que algum influenciador mostrou. Faz sentido, eles fazem parecer fácil. Só que ninguém posta o dia ruim.',
+      sozinho: 'Você disse que tentaria aprender sozinho pelo YouTube. Foi exatamente o que eu fiz. E me custou caro.',
+      alguem: 'Você disse que procuraria alguém de confiança pra te ensinar. Esse é o melhor instinto que você pode ter.'
     }[A.entry] || '';
   }
   function fearLine() {
     return {
-      golpe: 'Você disse que tem medo de cair em golpe. Com razão, tem muito por aí. Aqui ninguém pede pra você depositar dinheiro com a gente. Você aprende e, se quiser, opera na **sua própria conta**.',
-      perder: 'Você disse que seu maior medo é perder dinheiro. É por isso que todo mundo começa no modo treino. **Primeiro você erra com dinheiro de mentira.**',
+      golpe: 'Você disse que tem medo de cair em golpe. Com razão, tem muito por aí. Aqui ninguém pede pra você depositar dinheiro com a gente. Você aprende e, se quiser, opera na sua própria conta.',
+      perder: 'Você disse que seu maior medo é perder dinheiro. É por isso que todo mundo começa no modo treino. Primeiro você erra com dinheiro de mentira.',
       entender: 'Você disse que tem medo de não entender nada. Por isso eu explico tudo assim, do jeito que você tá vendo aqui: sem palavra difícil.',
       tempo: 'Você disse que tem medo de não ter tempo. As aulas você assiste no seu ritmo, e o meet fechado é ao vivo, de segunda a sexta.'
     }[A.fear] || '';
   }
   function capitalLine() {
-    if (A.capital === 'reserva') return 'E uma coisa séria' + (name ? ', ' + name : '') + ': você disse que começaria com a **reserva de emergência**. Não faça isso. Reserva é pra emergência. Você começa no modo treino e, quando for pro real, só com um valor que não te faça falta.';
-    if (A.capital === 'emprestimo') return 'E uma coisa séria: você disse que começaria com **empréstimo ou cartão**. Não faça isso. Nunca. Você começa no modo treino e, quando for pro real, só com um valor que não te faça falta.';
+    if (A.capital === 'reserva') return 'E uma coisa séria' + (name ? ', ' + name : '') + ': você disse que começaria com a reserva de emergência. Não faça isso. Reserva é pra emergência. Você começa no modo treino e, quando for pro real, só com um valor que não te faça falta.';
+    if (A.capital === 'emprestimo') return 'E uma coisa séria: você disse que começaria com empréstimo ou cartão. Não faça isso. Nunca. Você começa no modo treino e, quando for pro real, só com um valor que não te faça falta.';
     return '';
   }
   function learnLine() {
@@ -448,7 +448,7 @@
     if (w.closesAt && !O.windowClosed()) {
       var d = new Date(w.closesAt);
       var when = d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' }) + ' às ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-      return 'Só um detalhe: a porta fecha em **' + when + '**. Depois disso, só lista de espera.';
+      return 'Só um detalhe: a porta fecha em ' + when + '. Depois disso, só lista de espera.';
     }
     return 'Só um detalhe: a porta da Off Society abre poucas vezes. Fora da janela, só lista de espera.';
   }
@@ -460,8 +460,8 @@
     { id: 'golpe', q: 'Isso é golpe ou pirâmide?', run: function () { return audio('a9'); } },
     { id: 'mensalidade', q: 'É mensalidade?', run: function () {
       return say(P.period
-        ? 'A entrada é **' + PRICE + '**.'
-        : 'Não. É **' + (P.label || 'R$ 97') + ' uma vez só**, e o acesso é vitalício. Sem mensalidade e sem cobrança escondida.');
+        ? 'A entrada é ' + PRICE + '.'
+        : 'Não. É ' + (P.label || 'R$ 97') + ' uma vez só, e o acesso é vitalício. Sem mensalidade e sem cobrança escondida.');
     } },
     { id: 'iniciante', q: 'Nunca ouvi falar disso. É pra mim?', run: function () {
       return say('É exatamente pra você. O curso começa do zero absoluto: o que é dólar, o que é bitcoin, como funciona uma corretora e como abrir a conta com segurança.')
@@ -481,7 +481,7 @@
         .then(function () { return say('Eu mostro o que eu faço na minha conta. Nunca falo “entra agora”. O objetivo é você aprender a pensar, não copiar.'); });
     } },
     { id: 'garantia', q: 'E se eu não gostar?', run: function () {
-      return say('Você tem **' + G + ' dias de garantia**. Entrou, assistiu, participou dos meets e não curtiu? Pede o reembolso e recebe 100% de volta.');
+      return say('Você tem ' + G + ' dias de garantia. Entrou, assistiu, participou dos meets e não curtiu? Pede o reembolso e recebe 100% de volta.');
     } }
   ];
 
@@ -489,14 +489,11 @@
     var items = OBJ.slice();
     var first = true;
     function loop() {
-      return say(first ? 'Ficou alguma dúvida? Toca numa delas aqui embaixo. Se já decidiu, é só tocar em **Quero entrar**.' : 'Mais alguma dúvida?')
-        .then(function () {
-          first = false;
-          var opts = items.map(function (o) { return { l: o.q, v: o.id }; });
-          opts.push({ l: 'Quero entrar na Off Society', v: '__go', primary: true });
-          return choices(opts);
-        })
+      var opts = items.map(function (o) { return { l: o.q, v: o.id }; });
+      opts.push({ l: 'Quero entrar na Off Society', v: '__go', primary: true });
+      return choices(opts)
         .then(function (pick) {
+          first = false;
           if (pick.v === '__go') { chat.decidiu = true; save(); return null; }
           var item = items.filter(function (o) { return o.id === pick.v; })[0];
           items = items.filter(function (o) { return o.id !== pick.v; });
@@ -516,7 +513,7 @@
     O.track('ChatStart');
     if (!AUD_READY) {
       var sl = document.getElementById('sideLead');
-      if (sl) sl.textContent = 'Mensagens curtas e um vídeo de 30 segundos, sem palavra difícil. Leva uns 5 minutos.';
+      if (sl) sl.textContent = 'Mensagens do Naio sobre o seu diagnóstico.';
       var pn = document.getElementById('phNote');
       if (pn) pn.lastChild.nodeValue = 'Mensagens do Naio para quem fez o diagnóstico.';
     }
@@ -532,20 +529,21 @@
       O.sb.lead({ name: nm });
       await say('Prazer, ' + name + '!');
     } else {
-      await say('Oi, ' + name + '! Aqui é o Naio 👋');
+      await say('Fala, ' + name + ', Naio aqui!!');
     }
 
+    await say('Acabei de ver seu diagnóstico...');
     if (S.score != null && S.score <= 5) {
       await say(S.score > 0
-        ? 'Vi o seu diagnóstico: você tem **' + S.score + ' dos 5 hábitos** de quem perde dinheiro no mercado.'
-        : 'Vi o seu diagnóstico: você não tem nenhum dos 5 hábitos de quem perde dinheiro. Ótimo começo.');
-      if (S.score >= 2) await say('Calma, isso tem conserto. E é bem mais simples do que parece.');
+        ? 'Você tem ' + S.score + ' dos 5 hábitos de quem perde dinheiro no mercado.'
+        : 'Você não tem nenhum dos 5 hábitos de quem perde dinheiro. Ótimo começo.');
+      if (S.score >= 2) await say('Calma, isso tem conserto. E é mais simples do que parece.');
     }
     await audio('a1');
     await say(entryLine());
 
     var reaction = await choices([
-      { l: 'Me conta mais', v: 'mais', reply: 'Então deixa eu te contar a minha história. É curta.' },
+      { l: 'Me conta mais', v: 'mais', reply: 'Então deixa eu te contar a minha história.' },
       { l: 'Por que a maioria perde?', v: 'porque', reply: 'Boa pergunta. A resposta começa na minha história.' }
     ]);
     chat.reacao = reaction.v;
@@ -555,16 +553,27 @@
     // 02 · história
     chapter(2);
     await audio('a2');
-    await image('assets/img/naio-off-blue.webp', 'Longe da multidão. É daí que vem o **Off**.');
+    await image('assets/img/naio-off-blue.webp', 'Longe da multidão. É daí que vem o Off.');
     await audio('a3');
-    if (AUD.a3 && AUD.a3.src) await say('Faço questão de repetir: esse resultado é meu, com o meu dinheiro e a minha experiência. **Não é uma expectativa pra quem entra na Off Society.**');
-    await say(tried ? 'Agora me conta você: qual foi a sua pior experiência até hoje?' : 'Agora me conta você: o que te fez querer aprender sobre isso agora?');
-    var story = await ask({ placeholder: 'Escreva em uma frase…', skip: 'Prefiro não dizer', min: 2 });
-    chat.historia = story;
+    if (AUD.a3 && AUD.a3.src) await say('Faço questão de repetir: esse resultado é meu, com o meu dinheiro e a minha experiência. Não é uma expectativa pra quem entra na Off Society.');
+    await say(tried ? 'Agora me conta você: o que te fez querer tentar de novo?' : 'Agora me conta você: o que te fez querer aprender sobre isso?');
+    var storyChoice = await choices([
+      { l: 'Quero ter uma renda extra', v: 'renda' },
+      { l: 'Cansei de ver os outros ganhando', v: 'cansei' },
+      { l: 'Quero sair do emprego', v: 'emprego' },
+      { l: 'Quero proteger meu dinheiro', v: 'proteger' },
+      { l: 'Curiosidade mesmo', v: 'curiosidade' }
+    ]);
+    chat.historia = storyChoice.v;
     save();
-    await say(story
-      ? (tried ? 'Valeu por abrir isso comigo. Daqui a pouco você vai entender o que deu errado.' : 'Valeu por me contar. Começar sabendo onde a maioria erra já te coloca na frente.')
-      : 'Tranquilo. Vamos pro que interessa.');
+    var storyReply = {
+      renda: 'Renda extra é o motivo mais comum. E é possível, desde que você aprenda do jeito certo.',
+      cansei: 'Eu te entendo. A diferença entre eles e você vai ser o método.',
+      emprego: 'Muita gente começa com esse objetivo. O importante é não ter pressa.',
+      proteger: 'Ótimo instinto. Proteger o que você tem é tão importante quanto ganhar mais.',
+      curiosidade: 'Curiosidade é o primeiro passo. Foi assim que eu comecei também.'
+    }[storyChoice.v] || 'Valeu por me contar.';
+    await say(storyReply);
     await choices([{ l: 'Me explica como funciona', v: 'como' }]);
 
     // 03 · como funciona
@@ -589,20 +598,20 @@
 
     // 04 · off society
     chapter(4);
-    await say('Foi pra isso que eu abri a **Off Society**.');
+    await say('Foi pra isso que eu abri a Off Society.');
     await audio('a7');
     await offerCard();
     showOffer();
     await say(learnLine());
     if (C.hasOtherRevenue) {
-      await say('A entrada custa **' + PRICE + '**, pra que ninguém fique de fora por causa do preço.');
+      await say('A entrada custa ' + PRICE + ', pra que ninguém fique de fora por causa do preço.');
     } else {
       await say('Agora, sobre o valor.');
       await audio('a8');
     }
     await say('Olha tudo o que você leva:');
     await priceCard();
-    await say('E tem **' + G + ' dias de garantia**. Entrou e não fez sentido pra você? Pede o reembolso e recebe tudo de volta.');
+    await say('E tem ' + G + ' dias de garantia. Entrou e não fez sentido pra você? Pede o reembolso e recebe tudo de volta.');
     await say(windowLine());
     await menu();
 

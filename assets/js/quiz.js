@@ -160,13 +160,13 @@
       : 'Você tem ' + n + ' dos 5 hábitos <span class="soft">de quem perde dinheiro no mercado.</span>';
     var P = {
       recomeco: { name: 'Recomeço',
-        p: 'Você já sentiu na pele como é começar sozinho. <b>Isso não é falta de talento: é o jeito que quase todo mundo começa.</b> O Naio passou pelo mesmo e perdeu mais de R$ 20 mil antes de entender o que estava errado.' },
+        p: 'Você já tentou antes e não deu certo. <b>Isso significa que você está repetindo os mesmos erros que fazem a maioria perder.</b> Se ninguém te mostrar o que está errado, vai continuar perdendo. O Naio já esteve exatamente onde você está agora.' },
       manada: { name: 'Efeito Manada',
-        p: 'Segundo reguladores europeus, <b>de 74% a 89% das pessoas comuns perdem dinheiro</b> operando sem preparo. Pelas suas respostas, se começasse amanhã você entraria pela mesma porta que elas. A boa notícia: você descobriu isso antes de colocar um real.' },
+        p: 'Segundo reguladores europeus, <b>de 74% a 89% das pessoas comuns perdem dinheiro</b> operando do jeito que você começaria. Pelas suas respostas, você cairia nas mesmas armadilhas que todo mundo. <b>Se não mudar agora, vai ser mais um número nessa estatística.</b>' },
       atencao: { name: 'Zona de Atenção',
-        p: 'Você já evita parte dos erros da maioria, mas <b>' + (n === 1 ? 'um hábito ainda te coloca' : 'dois hábitos ainda te colocam') + ' no caminho de quem perde</b>. É exatamente o tipo de coisa que se corrige antes de colocar um real.' },
+        p: 'Você já evita parte dos erros, mas <b>' + (n === 1 ? 'um hábito ainda te coloca' : 'alguns hábitos ainda te colocam') + ' no mesmo caminho de quem perde tudo.</b> O problema é que você nem percebe. Se não corrigir isso antes de colocar dinheiro de verdade, o prejuízo vem.' },
       comeco: { name: 'Começo Certo',
-        p: 'Você não sairia correndo atrás de dica. <b>Quer aprender antes de arriscar</b>, exatamente o que o Naio não fez quando perdeu os R$ 20 mil. Falta só o método e alguém do lado.' }
+        p: 'Você tem o instinto certo, mas <b>instinto sozinho não basta.</b> Sem método e sem alguém do lado, até quem pensa certo acaba cometendo os mesmos erros. O Naio perdeu R$ 20 mil exatamente assim.' }
     }[key];
     return { score: n, n: n, key: key, level: level, name: P.name, h: h, p: P.p, traps: habits };
   }
@@ -427,9 +427,9 @@
         '</div>' +
         '<div class="res-next" data-reveal style="--d:.3s">' +
           '<div class="res-av"><img src="assets/img/naio-avatar.webp" alt=""><i>' + (aud ? I.mic : I.msg) + '</i></div>' +
-          '<div><b>' + (aud ? 'O Naio gravou áudios sobre o seu resultado.' : 'O Naio deixou uma mensagem sobre o seu resultado.') + '</b>' +
-            '<span>Conversa de 5 minutos · ' + (aud ? 'áudios curtos' : 'mensagens curtas') + ', sem palavra difícil.</span></div>' +
-          '<a class="btn btn-light btn-xl" href="' + O.withUtm('chat.html') + '" id="toChat">' + (aud ? 'Ouvir o Naio ' : 'Falar com o Naio ') + I.next + '</a>' +
+          '<div><b>O Naio quer falar com você sobre esse resultado.</b>' +
+            '<span>Ele já passou por tudo isso e pode te mostrar o que está errado.</span></div>' +
+          '<a class="btn btn-light btn-xl" href="' + O.withUtm('chat.html') + '" id="toChat">Falar com o Naio agora ' + I.next + '</a>' +
         '</div>' +
       '</div>');
 

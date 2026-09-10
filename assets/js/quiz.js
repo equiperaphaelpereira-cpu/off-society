@@ -388,7 +388,7 @@
   function renderResult(r) {
     phase('result', 'Seu resultado');
     var name = O.firstName(O.state.get().name);
-    var lbl = { detected: 'Você tem', risk: 'Fique de olho', ok: 'Você não tem' };
+    var lbl = { detected: '⚠ Detectado', risk: 'Atenção', ok: 'Seguro' };
     var AUD = window.OFF_AUDIOS || {};
     var aud = Object.keys(AUD).some(function (k) { return !!AUD[k].src; });
     // arco dividido em 5 segmentos (um por hábito)
@@ -406,12 +406,20 @@
         '<span class="row-a">' + I.arrow + '</span></button>' +
         '<div class="row-b"><div><div class="row-in"><p>' + esc(t.x) + '</p></div></div></div></li>';
     }).join('');
+
+    var warnIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>';
+    var warnText = r.n >= 3
+      ? 'Você está no caminho exato de quem perde tudo. Se não mudar isso agora, a estatística não vai perdoar.'
+      : r.n >= 1
+        ? 'Você está a poucos passos de cometer erros que custam caro. Quanto antes corrigir, melhor.'
+        : '';
+
     var el = swap(
       '<div class="res">' +
         '<div class="res-top">' +
           '<div class="gauge g-habits" data-reveal>' +
-            '<svg viewBox="0 0 400 220"><defs><filter id="gl"><feGaussianBlur stdDeviation="5"/></filter></defs>' +
-              '<g class="g-bg">' + segs + '</g><g class="g-fill" filter="url(#gl)" opacity=".55">' + segs + '</g><g class="g-fill">' + segs + '</g>' +
+            '<svg viewBox="0 0 400 220"><defs><filter id="gl"><feGaussianBlur stdDeviation="6"/></filter></defs>' +
+              '<g class="g-bg">' + segs + '</g><g class="g-fill" filter="url(#gl)" opacity=".6">' + segs + '</g><g class="g-fill">' + segs + '</g>' +
             '</svg>' +
             '<div class="gauge-num"><b class="tnum"><span id="gNum">0</span><small class="gauge-pct">/5</small></b><span>hábitos de quem perde dinheiro</span></div>' +
           '</div>' +
@@ -419,6 +427,7 @@
             '<span class="pill-live lvl-' + r.key + '"><i class="dot-live"></i>' + (name ? esc(name) + ' · ' : '') + '<b>' + esc(r.level) + '</b></span>' +
             '<h1 class="hx res-h" tabindex="-1" data-focus>' + r.h + '</h1>' +
             '<p class="res-p">' + r.p + '</p>' +
+            (warnText ? '<div class="res-warn">' + warnIcon + '<span>' + warnText + '</span></div>' : '') +
           '</div>' +
         '</div>' +
         '<div class="res-sheet sheet" data-reveal style="--d:.2s">' +
@@ -445,7 +454,7 @@
     if (auto) setTimeout(function () { auto.querySelector('.row-h').click(); }, 1500);
     el.querySelector('#toChat').addEventListener('click', function () { O.sb.event('to_chat'); });
 
-    // acende um segmento por hábito
+    // acende um segmento por hábito com delay dramático
     var num = el.querySelector('#gNum');
     var fills = el.querySelectorAll('.g-fill .g-seg');
     var k = 0;
@@ -454,9 +463,12 @@
       fills.forEach(function (p) { if (+p.getAttribute('data-i') === k) p.classList.add('on'); });
       k++;
       num.textContent = k;
-      setTimeout(step, O.reduceMotion ? 0 : 380);
+      // vibração sutil no número ao incrementar
+      num.style.transform = 'scale(1.15)';
+      setTimeout(function () { num.style.transform = ''; }, 200);
+      setTimeout(step, O.reduceMotion ? 0 : 550);
     }
-    setTimeout(step, 500);
+    setTimeout(step, 700);
   }
 
   /* ---------------------------------------------------------------- início */

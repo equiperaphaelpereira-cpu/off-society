@@ -201,13 +201,14 @@
     return indicator('audio', rand(2800, 4400)).then(function () {
       return new Promise(function (resolve) {
         var bars = waveform(id, 36).map(function (h) { return '<i style="height:' + h + '%"></i>'; }).join('');
+        var initialTime = a.duration ? fmt(a.duration) : '0:00';
         var m = add(
           '<div class="au" data-state="idle">' +
             '<button class="au-play" type="button" aria-label="Ouvir áudio: ' + O.esc(a.title) + '">' + I.play + I.pause + '</button>' +
             '<div class="au-main">' +
               '<div class="au-wave">' + bars + '<span class="au-dot"></span></div>' +
-              '<div class="au-meta"><span class="au-time tnum">0:00</span>' +
-                '<button class="au-speed" type="button" aria-label="Velocidade do áudio">1x</button>' +
+              '<div class="au-meta"><span class="au-time tnum">' + initialTime + '</span>' +
+                '<button class="au-speed" type="button" aria-label="Velocidade do áudio">1,5x</button>' +
                 '<span class="tm">' + now() + '</span></div>' +
             '</div>' +
             '<div class="au-av"><img src="' + AVATAR + '" alt=""><span class="au-mic">' + I.mic + '</span></div>' +
@@ -220,10 +221,14 @@
           spd = m.querySelector('.au-speed'), trBtn = m.querySelector('.au-tr-btn'), tr = m.querySelector('.au-tr');
         var el = new Audio();
         el.preload = 'metadata';
-        el.src = a.src;
-        var done = false, speeds = [1, 1.5, 2], si = 0;
+        var canOgg = el.canPlayType && el.canPlayType('audio/ogg; codecs="opus"').replace(/no/, '');
+        el.src = (canOgg && a.srcOgg) ? a.srcOgg : a.src;
 
-        function finish(ms) { if (done) return; done = true; setTimeout(resolve, ms == null ? 700 * SPEED : ms); }
+        var done = false, speeds = [1, 1.5, 2], si = 1; // Sempre começa no 1,5x
+        el.defaultPlaybackRate = 1.5;
+        el.playbackRate = 1.5;
+
+        function finish(ms) { if (done) return; done = true; setTimeout(resolve, ms == null ? 600 * SPEED : ms); }
         function paint(p) {
           var k = Math.round(p * barEls.length);
           for (var i = 0; i < barEls.length; i++) barEls[i].classList.toggle('on', i < k);
@@ -247,6 +252,7 @@
         el.addEventListener('play', function () {
           root.dataset.state = 'playing';
           btn.classList.remove('nudge');
+          el.playbackRate = speeds[si];
           if (currentAudio && currentAudio !== el) currentAudio.pause();
           currentAudio = el;
           O.sb.event('audio_play', id);
@@ -260,21 +266,33 @@
           chat['ouviu_' + id] = true;
           O.sb.event('audio_end', id);
           finish();
+
+          // Toca próximo áudio automaticamente na sequência (como WhatsApp)
+          var cur = m.nextElementSibling;
+          while (cur) {
+            var nextBtn = cur.querySelector && cur.querySelector('.au-play');
+            if (nextBtn) {
+              setTimeout(function () { nextBtn.click(); }, 450);
+              break;
+            }
+            cur = cur.nextElementSibling;
+          }
         });
-        el.addEventListener('error', function () { btn.classList.remove('nudge'); openTr(); finish(1500); });
+        el.addEventListener('error', function () { btn.classList.remove('nudge'); openTr(); finish(1200); });
 
         btn.addEventListener('click', function () {
           if (el.paused) {
             if (el.ended || (el.duration && el.currentTime >= el.duration - 0.05)) el.currentTime = 0;
             el.playbackRate = speeds[si];
             var pr = el.play();
-            if (pr && pr.catch) pr.catch(function () { openTr(); finish(1500); });
+            if (pr && pr.catch) pr.catch(function () { openTr(); finish(1200); });
           } else el.pause();
         });
         spd.addEventListener('click', function () {
           si = (si + 1) % speeds.length;
-          el.playbackRate = speeds[si];
-          spd.textContent = String(speeds[si]).replace('.', ',') + 'x';
+          var r = speeds[si];
+          el.playbackRate = r;
+          spd.textContent = (r === 1 ? '1x' : (r === 1.5 ? '1,5x' : '2x'));
         });
         wave.addEventListener('click', function (ev) {
           var r = wave.getBoundingClientRect();
@@ -293,6 +311,7 @@
           }
         });
         setTimeout(function () { if (root.dataset.state === 'idle' && !done) btn.classList.add('nudge'); }, 2600);
+        setTimeout(function () { finish(300); }, 3200 * SPEED);
       });
     });
   }
@@ -355,10 +374,11 @@
     return card('<div class="card-w"><span class="meta">Off Society · o que você recebe</span>' +
       '<h4>Tudo o que eu não tive quando perdi os R$ 20 mil.</h4><ul>' +
       li('Curso do zero ao avançado', 'Do que é dólar e bitcoin até as minhas estratégias') +
-      li('Meet fechado ao vivo', 'De segunda a sexta, eu operando na minha conta') +
+      li('Meet fechado 3x por dia (9h, 15h e 20h)', '3 operações ao vivo, troca de ideia e dúvidas') +
       li('Modo treino primeiro', 'Você começa com dinheiro de mentira') +
-      li('Contato direto comigo', 'Perguntas no fim de cada meet') +
-      li('Grupo fechado', 'Gente começando junto com você') +
+      li('Resultados reais de alunos', 'Alunos fazendo de R$ 500 a R$ 1.000/dia seguindo os meets') +
+      li('Contato direto comigo', 'Perguntas respondidas no fim de cada meet') +
+      li('Acesso vitalício', 'Sem mensalidade, entrada única de ' + O.esc(PRICE)) +
       '</ul></div>');
   }
 
@@ -379,13 +399,17 @@
   }
 
   function salaCard() {
-    return card('<div class="card-w sala-c"><span class="meta">Como é o meet fechado</span><h4>Todo dia, ao vivo, do mesmo jeito.</h4><ol>' +
-      '<li><div><b>Abertura</b><span>O que pode mexer com o mercado hoje</span></div></li>' +
-      '<li><div><b>Ao vivo</b><span>Eu opero a minha conta explicando cada decisão</span></div></li>' +
-      '<li><div><b>Proteção</b><span>Quanto eu arrisquei e por quê</span></div></li>' +
-      '<li><div><b>Revisão</b><span>O que deu certo e o que deu errado</span></div></li>' +
-      '<li><div><b>Perguntas</b><span>Você pergunta, eu respondo</span></div></li>' +
-      '</ol></div>');
+    return card('<div class="card-w sala-c"><span class="meta">Como é o meet fechado</span><h4>3x por dia: 9h, 15h e 20h.</h4>' +
+      '<p style="font-size:13px;color:rgba(255,255,255,.7);margin:4px 0 12px;">De segunda a sexta, sempre nessa estrutura:</p><ol>' +
+      '<li><div><b>1. Abertura</b><span>Análise inicial e cenário do mercado</span></div></li>' +
+      '<li><div><b>2. Troca de ideia</b><span>Alinhamento direto com a comunidade</span></div></li>' +
+      '<li><div><b>3. 3 operações ao vivo</b><span>Operando a conta real e explicando cada decisão</span></div></li>' +
+      '<li><div><b>4. Dúvidas</b><span>Você pergunta, o Naio responde ao vivo</span></div></li>' +
+      '<li><div><b>5. Encerramento</b><span>Direcionamento e gestão de risco do dia</span></div></li>' +
+      '</ol>' +
+      '<div style="margin-top:12px;padding:10px 12px;background:rgba(91,107,255,.12);border:1px solid rgba(91,107,255,.25);border-radius:10px;font-size:12.5px;line-height:1.45;color:#D8DCFF;">' +
+      '💰 <b>Alunos do Naio</b>, seguindo esses meets, chegam a fazer de <b>R$ 500 a R$ 1.000 por dia</b> no mercado.' +
+      '</div></div>');
   }
 
   function ctaCard() {
@@ -472,13 +496,13 @@
         .then(function () { return say('Quando for pro real, a regra é começar com um valor pequeno, que não te faça falta, e só aumentar quando o seu diário mostrar que você tá pronto.'); });
     } },
     { id: 'tempo', q: 'E se eu tiver pouco tempo?', run: function () {
-      return say('Dá pra começar com pouco tempo por dia. As aulas você assiste no seu ritmo, e o meet fechado é ao vivo, ' + sched + '. O que importa é a constância.');
+      return say('Dá pra começar com pouco tempo por dia. As aulas ficam gravadas pra você ver quando puder, e o meet fechado é ao vivo 3 vezes por dia: às 9h, 15h e 20h, de segunda a sexta. Você pode entrar no horário que for melhor pra você.');
     } },
     { id: 'sala', q: 'Como funciona o meet fechado?', run: function () {
-      return say('É ao vivo, ' + sched + '. Sempre no mesmo formato:')
+      return say('Acontece 3 vezes por dia: às 9h, 15h e 20h, de segunda a sexta. Sempre nessa estrutura fixa:')
         .then(salaCard)
         .then(salaVideo)
-        .then(function () { return say('Eu mostro o que eu faço na minha conta. Nunca falo “entra agora”. O objetivo é você aprender a pensar, não copiar.'); });
+        .then(function () { return say('Eu opero a minha conta ao vivo com 3 operações e explicando cada passo. Alunos que acompanham com disciplina chegam a fazer de R$ 500 a R$ 1.000 por dia.'); });
     } },
     { id: 'garantia', q: 'E se eu não gostar?', run: function () {
       return say('Você tem ' + G + ' dias de garantia. Entrou, assistiu, participou dos meets e não curtiu? Pede o reembolso e recebe 100% de volta.');
@@ -543,20 +567,23 @@
     await say(entryLine());
 
     var reaction = await choices([
-      { l: 'Me conta mais', v: 'mais', reply: 'Então deixa eu te contar a minha história.' },
-      { l: 'Por que a maioria perde?', v: 'porque', reply: 'Boa pergunta. A resposta começa na minha história.' }
+      { l: 'Me conta mais', v: 'mais' },
+      { l: 'Por que a maioria perde?', v: 'porque' }
     ]);
     chat.reacao = reaction.v;
     save();
-    await say(reaction.reply);
+    await say('Então deixa eu te contar a minha história.');
 
     // 02 · história
     chapter(2);
-    await audio('a2');
-    await image('assets/img/naio-off-blue.webp', 'Longe da multidão. É daí que vem o Off.');
-    await audio('a3');
-    if (AUD.a3 && AUD.a3.src) await say('Faço questão de repetir: esse resultado é meu, com o meu dinheiro e a minha experiência. Não é uma expectativa pra quem entra na Off Society.');
-    await say(tried ? 'Agora me conta você: o que te fez querer tentar de novo?' : 'Agora me conta você: o que te fez querer aprender sobre isso?');
+    await wait(1800);
+    await audio('h1');
+    await wait(3000);
+    await audio('h2');
+    await wait(3000);
+    await audio('h3');
+    await wait(2200);
+    await say('Agora me conta você, o que te fez querer aprender sobre isso');
     var storyChoice = await choices([
       { l: 'Quero ter uma renda extra', v: 'renda' },
       { l: 'Cansei de ver os outros ganhando', v: 'cansei' },
@@ -601,7 +628,6 @@
     await say('Foi pra isso que eu abri a Off Society.');
     await audio('a7');
     await offerCard();
-    showOffer();
     await say(learnLine());
     if (C.hasOtherRevenue) {
       await say('A entrada custa ' + PRICE + ', pra que ninguém fique de fora por causa do preço.');
@@ -617,6 +643,7 @@
 
     await say('Boa' + (name ? ', ' + name : '') + '! Te espero lá dentro.');
     await audio('a10');
+    showOffer();
     await ctaCard();
     chat.completo = true;
     O.state.set({ chat: chat });

@@ -60,7 +60,10 @@ window.OFF_CONFIG = {
   /* ---------- Meet fechado (lives) ---------- */
   salaOff: {
     schedule: 'de segunda a sexta',
-    time: ''                   // DEFINIR: ex.: 'às 9h30 (horário de Brasília)'
+    time: '3x por dia: às 9h, 15h e 20h',
+    times: ['09:00', '15:00', '20:00'],
+    structure: 'abertura, troca de ideia, 3 operações, dúvidas e encerramento',
+    studentEarnings: 'de R$ 500 a R$ 1.000 por dia'
   },
 
   /* ---------- Vídeos (opcionais) ----------

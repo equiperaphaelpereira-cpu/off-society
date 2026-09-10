@@ -1,6 +1,7 @@
 /* ==========================================================================
-   ETAPA 1 · QUIZ — Diagnóstico Cascata
-   9 perguntas → 3 insights educativos → análise → captura → resultado
+   ETAPA 1 · QUIZ — Diagnóstico gratuito (público leigo)
+   8 perguntas simples → 3 telas educativas → análise → captura → resultado
+   Resultado: quantos dos 5 hábitos de quem perde dinheiro a pessoa tem.
    ========================================================================== */
 (function () {
   'use strict';
@@ -19,187 +20,155 @@
 
   /* ---------------------------------------------------------------- perguntas */
   var Q = [
-    { id: 'market', title: 'Qual mercado você opera <em>ou quer operar?</em>',
-      sub: 'Cripto e forex seguem a mesma lógica de liquidez. O dólar conecta os dois.',
+    { id: 'know', title: 'O quanto você conhece sobre <em>fazer dinheiro online</em> hoje?',
+      sub: 'Sem vergonha: a maioria das pessoas que faz esse diagnóstico está começando do zero.',
       options: [
-        { v: 'cripto', l: 'Cripto', d: 'Bitcoin, altcoins, futuros perpétuos' },
-        { v: 'forex', l: 'Forex', d: 'Pares de moedas: EUR/USD, GBP/USD…' },
-        { v: 'ambos', l: 'Os dois', d: 'Cripto e forex' },
-        { v: 'nenhum', l: 'Ainda não opero', d: 'Quero começar do jeito certo' }
+        { v: 'nada', l: 'Nada, sou totalmente iniciante' },
+        { v: 'ouvi', l: 'Já ouvi falar de mercado e bitcoin, mas não entendo' },
+        { v: 'tentei', l: 'Já tentei alguma coisa, mas não deu certo' },
+        { v: 'opero', l: 'Já arrisquei algum dinheiro antes' }
       ] },
-    { id: 'exp', title: 'Há quanto tempo você <em>opera?</em>',
+    { id: 'why', title: 'O que mais <em>te atrai</em> nesse mundo?',
       options: [
-        { v: 'nunca', l: 'Nunca operei com dinheiro real' },
-        { v: '0-6', l: 'Menos de 6 meses' },
-        { v: '6-24', l: 'De 6 meses a 2 anos' },
-        { v: '24+', l: 'Mais de 2 anos' }
+        { v: 'renda', l: 'Ter uma renda a mais no fim do mês' },
+        { v: 'render', l: 'Fazer meu dinheiro render mais do que na poupança' },
+        { v: 'dolar', l: 'Proteger meu dinheiro em dólar' },
+        { v: 'aprender', l: 'Aprender uma habilidade nova' }
       ] },
-    { id: 'loss', title: 'Você já <em>perdeu dinheiro</em> operando?',
-      sub: 'Resposta sincera. Quase todo mundo que chega aqui já perdeu ou tem medo de perder.',
+    { id: 'print', title: 'Você já viu alguém postando <em>print de lucro</em> nas redes?', insight: 'print',
       options: [
-        { v: 'muito', l: 'Sim, mais do que eu gostaria de admitir' },
-        { v: 'pouco', l: 'Sim, um pouco' },
-        { v: 'medo', l: 'Ainda não, mas tenho medo de perder' },
-        { v: 'nunca', l: 'Nunca operei com dinheiro real' }
+        { v: 'muito', l: 'Sim, toda hora' },
+        { v: 'algumas', l: 'Algumas vezes' },
+        { v: 'nunca', l: 'Nunca reparei' }
       ] },
-    { id: 'stop', title: 'Onde você costuma colocar <em>o seu stop?</em>', insight: 'stop',
+    { id: 'entry', title: 'Se você fosse começar amanhã, <em>como faria?</em>', insight: 'crowd',
       options: [
-        { v: 'fundo', l: 'Logo abaixo do fundo (ou acima do topo)', d: 'O lugar “técnico” que quase todo curso ensina' },
-        { v: 'redondo', l: 'Perto de um número redondo', d: 'Ex.: 1.1000 no EUR/USD, 60.000 no bitcoin' },
-        { v: 'sem', l: 'Não uso stop', d: 'Eu mesmo fecho quando acho que deu' },
-        { v: 'naosei', l: 'Ainda não sei o que é stop' }
+        { v: 'dica', l: 'Seguiria a dica de algum amigo' },
+        { v: 'influencer', l: 'Faria o que algum influenciador da internet mostrou' },
+        { v: 'sozinho', l: 'Tentaria aprender sozinho pelo YouTube' },
+        { v: 'alguem', l: 'Procuraria alguém de confiança pra me ensinar do zero' }
       ] },
-    { id: 'lev', title: 'Que alavancagem você usa <em>(ou usaria)?</em>', insight: 'lev',
+    { id: 'fear', title: 'Qual é o seu <em>maior medo</em> de começar?', insight: 'fear',
       options: [
-        { v: 'nao', l: 'Não uso alavancagem' },
-        { v: 'ate5', l: 'Até 5x' },
-        { v: '10a20', l: 'De 10x a 20x' },
-        { v: '20mais', l: 'Acima de 20x' },
-        { v: 'corretora', l: 'A que a corretora oferece', d: '1:100, 1:500, 125x…' }
+        { v: 'perder', l: 'Perder o dinheiro que eu colocar' },
+        { v: 'golpe', l: 'Cair em golpe' },
+        { v: 'entender', l: 'Não entender nada' },
+        { v: 'tempo', l: 'Não ter tempo' }
       ] },
-    { id: 'entry', title: 'Qual dessas entradas é mais <em>a sua cara?</em>',
+    { id: 'time', title: 'Quanto tempo por dia você teria <em>pra aprender?</em>',
       options: [
-        { v: 'rompimento', l: 'Quando o preço rompe o topo ou o fundo' },
-        { v: 'noticia', l: 'Quando sai uma notícia forte' },
-        { v: 'sinal', l: 'Pelo sinal de alguém ou de um grupo' },
-        { v: 'semcriterio', l: 'Ainda não tenho critério' }
+        { v: '30', l: 'Menos de 30 minutos' },
+        { v: '60', l: 'De 30 minutos a 1 hora' },
+        { v: '120', l: 'De 1 a 2 horas' },
+        { v: '120+', l: 'Mais de 2 horas' }
       ] },
-    { id: 'sweep', title: 'Já aconteceu de o preço bater no seu stop e depois ir <em>exatamente pra onde você previu?</em>', insight: 'sweep',
+    { id: 'learn', title: 'Como você <em>aprende melhor?</em>',
       options: [
-        { v: 'varias', l: 'Sim, várias vezes' },
-        { v: 'poucas', l: 'Uma ou duas vezes' },
-        { v: 'nuncareparei', l: 'Nunca reparei' },
-        { v: 'nuncaoperei', l: 'Ainda não operei' }
+        { v: 'aovivo', l: 'Vendo alguém fazer, ao vivo' },
+        { v: 'ritmo', l: 'Assistindo aulas no meu ritmo' },
+        { v: 'duvida', l: 'Tirando dúvida direto com quem sabe' },
+        { v: 'tudo', l: 'Um pouco de tudo' }
       ] },
-    { id: 'block', title: 'O que mais <em>te trava</em> hoje?',
+    { id: 'capital', title: 'Se fosse começar, <em>com que dinheiro</em> seria?',
+      sub: 'Resposta sincera. Ela muda o que o Naio vai te dizer.',
       options: [
-        { v: 'comeco', l: 'Não sei por onde começar' },
-        { v: 'metodo', l: 'Não tenho método, opero no feeling' },
-        { v: 'emocional', l: 'Perco o controle emocional' },
-        { v: 'sozinho', l: 'Não tenho ninguém pra tirar dúvida' }
-      ] },
-    { id: 'capital', title: 'Com que dinheiro você pretende <em>operar?</em>',
-      sub: 'Essa resposta muda o que o Naio vai te dizer.',
-      options: [
-        { v: 'sobra', l: 'Um valor que posso perder sem afetar minhas contas' },
-        { v: 'reserva', l: 'Parte da minha reserva de emergência' },
-        { v: 'emprestimo', l: 'Empréstimo ou cartão de crédito' },
-        { v: 'naosei', l: 'Ainda não sei' }
+        { v: 'pequeno', l: 'Um valor pequeno, que não me faria falta' },
+        { v: 'naosei', l: 'Ainda não sei, quero aprender primeiro' },
+        { v: 'reserva', l: 'Minha reserva de emergência' },
+        { v: 'emprestimo', l: 'Empréstimo ou cartão de crédito' }
       ] }
   ];
 
   /* ---------------------------------------------------------------- insights */
   var INSIGHTS = {
-    stop: function (a) {
-      var you = {
-        fundo: 'Você coloca o stop logo abaixo do fundo — exatamente onde a maioria coloca.',
-        redondo: 'Você coloca o stop perto de número redondo — exatamente onde a pesquisa encontrou a maior concentração de ordens.',
-        sem: 'Sem stop, quem decide a sua saída é a corretora: no preço de liquidação ou na chamada de margem. E esses preços se acumulam nas mesmas zonas.',
-        naosei: 'Stop é a ordem que encerra a operação sozinha num preço definido. Você ainda não aprendeu a colocá-lo no lugar errado — isso é vantagem.'
-      }[a.stop];
+    print: function (a) {
       return {
-        kicker: 'O que a pesquisa encontrou',
-        num: '~10', small: '%',
-        title: 'das ordens de stop e realização de lucro estavam em preços terminados em 00.',
-        you: you,
+        kicker: 'O que ninguém te conta',
+        word: 'Print não é resultado.',
+        title: 'Quem posta print mostra o dia bom. O dia ruim ninguém posta.',
+        you: a.print === 'muito'
+          ? 'Você vê print de lucro toda hora. É assim que a maioria decide entrar.'
+          : 'Repare nas próximas vezes: quase nunca aparece o dia em que a pessoa perdeu.',
         body: [
-          'Carol Osler, economista do Federal Reserve de Nova York, analisou ordens reais de clientes de um grande banco no câmbio. Os stops se concentravam logo depois dos números redondos.',
-          'Quando o preço chega nessas zonas, as ordens disparam em sequência: cada stop executado empurra o preço até os próximos. Ela chamou isso de <em>price cascade</em>.'
+          'É assim que a maioria entra no mercado: vê um print, se empolga e entra do mesmo jeito que todo mundo, na mesma hora.',
+          'Na Off Society, print de lucro não conta. O que conta é o diário, com os dias bons e os ruins.'
         ],
-        src: 'Osler (2003), Journal of Finance · Fed de Nova York, Staff Report 150'
+        src: 'Código da Off Society'
       };
     },
-    lev: function (a) {
-      var base = 'No Protocolo Cascata, a alavancagem é calculada pela distância: o preço de liquidação precisa ficar além da próxima zona. Se não couber, a posição diminui ou não entra.';
-      var map = {
-        nao: { num: '1,6', small: 'mi', title: 'de traders liquidados em 24 horas, em outubro de 2025.',
-          you: 'Sem alavancagem, você fica fora da parte mais violenta. Ótimo começo.',
-          body: ['Foram cerca de US$ 19 bilhões em posições encerradas à força — o maior evento de liquidação da história do setor. Quase todas eram posições compradas.',
-            'Mesmo sem alavancagem, o seu stop continua no mapa. E é aí que o Protocolo Cascata começa.'],
-          src: 'Coinglass via Livecoins · Exame (out/2025)' },
-        ate5: { num: '~20', small: '%', title: 'é o quanto o preço precisa andar contra uma posição de 5x para liquidá-la.',
-          you: 'Você usa até 5x. Parece pouco — até o dia em que o mercado anda 20%.',
-          body: ['Em outubro de 2025, mais de 1,6 milhão de traders foram liquidados em 24 horas. Muitos achavam que estavam com pouca alavancagem.', base] },
-        '10a20': { num: '5–10', small: '%', title: 'é o quanto o preço precisa andar contra você para liquidar uma posição de 10x a 20x.',
-          you: 'Com 10x a 20x, o seu preço de liquidação costuma ficar dentro da zona onde a cascata acontece.',
-          body: ['Quando a cascata começa, a sua posição vira uma das que alimentam o movimento. Não é azar: é matemática de margem.', base] },
-        '20mais': { num: '<5', small: '%', title: 'de movimento contra você já liquida uma posição acima de 20x.',
-          you: 'Acima de 20x, um dia comum de mercado basta para zerar a posição.',
-          body: ['Em dia de notícia forte, cripto anda isso com facilidade — e a sua posição vira combustível para o movimento.', base] },
-        corretora: { num: '0,2', small: '%', title: 'de movimento contra uma posição de 500x já consome toda a margem.',
-          you: 'Usar a alavancagem que a corretora oferece é o jeito mais rápido de colocar o seu preço de liquidação no meio da zona de cascata.',
-          body: ['Com 1:500, uma conta de US$ 500 abre 1 lote padrão de EUR/USD. Cinquenta pips contra — um movimento comum em um único dia — zeram a conta.',
-            'A corretora oferece a alavancagem em poucos cliques. Ninguém mostra essa conta.'] }
-      };
-      var m = map[a.lev] || map.nao;
+    crowd: function (a) {
       return {
-        kicker: a.lev === 'nao' ? 'O maior evento de liquidação da história' : 'A conta que ninguém mostra',
-        num: m.num, small: m.small, title: m.title, you: m.you, body: m.body,
-        src: m.src || 'Valores aproximados, sem considerar taxas e margem de manutenção.'
+        kicker: 'O efeito manada',
+        num: '1,6', small: 'mi',
+        title: 'de pessoas perderam dinheiro no mesmo dia, em 10 de outubro de 2025.',
+        you: {
+          dica: 'Seguir a dica de alguém é o jeito mais comum de começar. E o jeito mais comum de perder junto.',
+          influencer: 'Um influenciador mostra o ganho e milhares de pessoas copiam na mesma hora. É assim que a manada se forma.',
+          sozinho: 'Aprender sozinho foi o que o Naio fez. Custou mais de R$ 20 mil.',
+          alguem: 'Procurar alguém de confiança é o melhor instinto que você pode ter.'
+        }[a.entry],
+        body: [
+          'Elas não perderam por azar. Estavam fazendo a mesma coisa, na mesma hora. Quando o preço começou a cair, todo mundo quis sair ao mesmo tempo, e um empurrou o outro, como peças de dominó.',
+          'O Naio chama esse dominó de <em>cascata</em>. E ensina a nunca estar no meio da fileira.'
+        ],
+        src: 'Coinglass via Livecoins e Exame (out/2025)'
       };
     },
-    sweep: function (a) {
-      var saw = a.sweep === 'varias' || a.sweep === 'poucas';
-      return {
-        kicker: saw ? 'Por que isso acontece' : 'Um teste para a próxima vez',
-        word: saw ? 'Não é azar.' : 'Repare.',
-        title: saw ? 'É liquidez.' : 'Na próxima vez que o preço romper um topo óbvio, observe o que acontece logo depois.',
-        you: saw ? 'Você já viu o preço buscar o seu stop antes de ir pra onde você previu.' : '',
-        body: [
-          'Muitas vezes o rompimento é só o preço buscando os stops acima da máxima (ou abaixo da mínima) antes de voltar.',
-          'No estudo do Fed de Nova York, o câmbio tendeu a reverter perto de números redondos e a acelerar depois de atravessá-los. Sem conspiração: são ordens acumuladas disparando em sequência. Quando o combustível acaba, o movimento perde força.'
-        ],
-        src: 'Osler, Fed de Nova York (2002) · Journal of Finance (2003)'
-      };
+    fear: function (a) {
+      var m = {
+        golpe: { word: 'Seu dinheiro fica com você.', title: 'Ninguém da Off Society pede para você depositar dinheiro.',
+          body: ['Você paga a comunidade e aprende. Se um dia quiser operar, opera na sua própria conta, numa corretora que você mesmo aprende a verificar.',
+            'Ninguém promete rendimento. E não é pirâmide: você não precisa trazer ninguém.'] },
+        perder: { word: 'Modo treino primeiro.', title: 'Todo mundo começa com dinheiro de mentira.',
+          body: ['É igual videogame: você começa no modo treino. A conta funciona igual à de verdade, mas sem arriscar um real.',
+            'Só passa para o dinheiro real quando o seu diário mostrar que você está pronto, e com valor pequeno.'] },
+        entender: { word: 'Do zero. Sem palavra difícil.', title: 'O curso começa pelo começo de verdade.',
+          body: ['O que é dólar, o que é bitcoin, como funciona uma corretora e como abrir a conta com segurança.',
+            'E se travar em alguma coisa, todo meet fechado termina com um bloco de perguntas com o Naio.'] },
+        tempo: { word: 'No seu ritmo.', title: 'As aulas ficam disponíveis para você assistir quando puder.',
+          body: ['E o meet fechado acontece ao vivo, de segunda a sexta, com o Naio operando e explicando cada decisão.',
+            'Dá pra começar com pouco tempo por dia. O que importa é a constância.'] }
+      }[a.fear] || {};
+      return { kicker: 'Sobre o seu medo', word: m.word, title: m.title, body: m.body || [], src: 'Regras da Off Society' };
     }
   };
 
-  /* ---------------------------------------------------------------- pontuação */
-  var PTS = {
-    stop: { fundo: 24, redondo: 24, sem: 28, naosei: 16 },
-    lev: { nao: 2, ate5: 9, '10a20': 20, '20mais': 26, corretora: 28 },
-    entry: { rompimento: 20, noticia: 18, sinal: 22, semcriterio: 16 },
-    sweep: { varias: 12, poucas: 8, nuncareparei: 6, nuncaoperei: 3 },
-    loss: { muito: 10, pouco: 6, medo: 4, nunca: 2 }
-  };
-
+  /* ---------------------------------------------------------------- resultado: 5 hábitos */
   function compute(a) {
-    var raw = 0;
-    Object.keys(PTS).forEach(function (k) { raw += (PTS[k][a[k]] || 0); });
-    var score = Math.max(12, Math.min(97, Math.round(raw)));
-    var beginner = a.exp === 'nunca' || a.market === 'nenhum';
-    var key = beginner ? 'zero' : score >= 70 ? 'combustivel' : score >= 45 ? 'zona' : 'fronteira';
-    var P = {
-      zero: { name: 'Ponto Zero',
-        h: 'Você ainda não virou <span class="soft">combustível.</span>',
-        p: 'O índice mostra o risco de você começar <b>do mesmo jeito que a maioria começa</b>: vendo um print, abrindo a conta, colocando o stop onde todo mundo coloca e usando a alavancagem que a corretora oferece. A boa notícia: você ainda pode começar pelo lado certo.' },
-      combustivel: { name: 'Combustível de Cascata',
-        h: 'Você opera como a maioria <span class="soft">que é liquidada primeiro.</span>',
-        p: 'Seu stop, sua entrada e sua alavancagem estão nas zonas onde a cascata acontece. <b>Quando o mercado se move de verdade, posições como a sua são as que alimentam o movimento.</b> Não é falta de sorte. É o lugar onde você está operando.' },
-      zona: { name: 'Dentro da Zona',
-        h: 'Parte da sua operação <span class="soft">está na zona de cascata.</span>',
-        p: 'Você já evita alguns erros da maioria, mas <b>pelo menos um ponto da sua operação te coloca no caminho da cascata</b>. É esse ponto que costuma devolver em um dia o ganho de semanas.' },
-      fronteira: { name: 'Na Fronteira',
-        h: 'Você já evita a armadilha. <span class="soft">Falta o mapa.</span>',
-        p: 'Você não opera como a maioria. O próximo passo é saber <b>onde a maioria vai ser obrigada a sair</b> — e usar isso a seu favor, com a conta blindada.' }
-    }[key];
-
-    function st(s) { return beginner && s === 'detected' ? 'risk' : s; }
-    var traps = [
-      { t: 'Stop onde todo mundo coloca', s: st({ fundo: 'detected', redondo: 'detected', sem: 'detected', naosei: 'risk' }[a.stop] || 'risk'),
-        x: a.stop === 'sem'
-          ? 'Sem stop, a sua saída vira o preço de liquidação — e ele se acumula nas mesmas zonas que o stop da maioria.'
-          : 'Logo abaixo do fundo e logo depois do número redondo. Ali o stop vira a liquidez que o preço precisa para se mover.' },
-      { t: 'Entrada no rompimento óbvio', s: st({ rompimento: 'detected', sinal: 'detected', semcriterio: 'risk', noticia: 'ok' }[a.entry] || 'risk'),
-        x: a.entry === 'sinal'
-          ? 'Quem entra pelo sinal de um grupo entra junto com todo mundo: no mesmo preço, com o stop no mesmo lugar.'
-          : 'Muitas vezes o rompimento é só o preço buscando os stops acima da máxima antes de voltar.' },
-      { t: 'Liquidação dentro da zona de cascata', s: st({ nao: 'ok', ate5: 'risk', '10a20': 'detected', '20mais': 'detected', corretora: 'detected' }[a.lev] || 'risk'),
-        x: 'Quando a cascata começa, uma posição alavancada demais é uma das que alimentam o movimento. A alavancagem precisa ser calculada pela distância até a próxima zona.' },
-      { t: 'Notícia tratada como direção', s: st(a.entry === 'noticia' ? 'detected' : beginner ? 'risk' : 'ok'),
-        x: 'A notícia funciona como gatilho. O tamanho do movimento depende de quanta alavancagem e quantos stops estavam acumulados antes dela.' }
+    var habits = [
+      { t: 'Seguir dicas da internet',
+        s: (a.entry === 'dica' || a.entry === 'influencer') ? 'detected' : 'ok',
+        x: 'Na internet, quando alguém te dá uma dica, milhares de pessoas estão fazendo a mesma coisa. Quando todo mundo faz igual, todo mundo perde junto.' },
+      { t: 'Acreditar em print de lucro rápido',
+        s: a.print === 'muito' ? 'detected' : a.print === 'algumas' ? 'risk' : 'ok',
+        x: 'Print só mostra o dia bom. Quem toma decisão baseada no que os outros mostram acaba caindo em armadilhas e se frustrando.' },
+      { t: 'Tentar aprender na tentativa e erro',
+        s: (a.entry === 'sozinho' || a.know === 'tentei') ? 'detected' : 'ok',
+        x: 'Aprender sozinho custa caro. Foi assim que o Naio perdeu mais de R$ 20 mil no começo, por não ter a quem perguntar.' },
+      { t: 'Arriscar dinheiro que faz falta',
+        s: (a.capital === 'reserva' || a.capital === 'emprestimo') ? 'detected' : a.capital === 'naosei' ? 'risk' : 'ok',
+        x: 'Dinheiro para contas não se arrisca. O jeito certo é começar num ambiente de treino, sem colocar um centavo de verdade.' },
+      { t: 'Querer resultado pra ontem',
+        s: a.why === 'renda' ? ((a.time === '30' || a.time === '60') ? 'detected' : 'risk') : 'ok',
+        x: 'Quem tem pressa pula etapas importantes e acaba perdendo o que tem. O primeiro objetivo é sempre aprender, não ganhar.' }
     ];
-    return { score: score, key: key, beginner: beginner, name: P.name, h: P.h, p: P.p, traps: traps };
+    var n = habits.filter(function (h) { return h.s === 'detected'; }).length;
+    var key = a.know === 'tentei' ? 'recomeco' : n >= 3 ? 'manada' : n >= 1 ? 'atencao' : 'comeco';
+    var level = n >= 3 ? 'Risco alto' : n >= 1 ? 'Risco moderado' : 'Risco baixo';
+    var h = n === 0
+      ? 'Você não tem nenhum dos 5 hábitos <span class="soft">de quem perde dinheiro.</span>'
+      : 'Você tem ' + n + ' dos 5 hábitos <span class="soft">de quem perde dinheiro no mercado.</span>';
+    var P = {
+      recomeco: { name: 'Recomeço',
+        p: 'Você já sentiu na pele como é começar sozinho. <b>Isso não é falta de talento: é o jeito que quase todo mundo começa.</b> O Naio passou pelo mesmo e perdeu mais de R$ 20 mil antes de entender o que estava errado.' },
+      manada: { name: 'Efeito Manada',
+        p: 'Segundo reguladores europeus, <b>de 74% a 89% das pessoas comuns perdem dinheiro</b> operando sem preparo. Pelas suas respostas, se começasse amanhã você entraria pela mesma porta que elas. A boa notícia: você descobriu isso antes de colocar um real.' },
+      atencao: { name: 'Zona de Atenção',
+        p: 'Você já evita parte dos erros da maioria, mas <b>' + (n === 1 ? 'um hábito ainda te coloca' : 'dois hábitos ainda te colocam') + ' no caminho de quem perde</b>. É exatamente o tipo de coisa que se corrige antes de colocar um real.' },
+      comeco: { name: 'Começo Certo',
+        p: 'Você não sairia correndo atrás de dica. <b>Quer aprender antes de arriscar</b>, exatamente o que o Naio não fez quando perdeu os R$ 20 mil. Falta só o método e alguém do lado.' }
+    }[key];
+    return { score: n, n: n, key: key, level: level, name: P.name, h: h, p: P.p, traps: habits };
   }
 
   /* ---------------------------------------------------------------- palco */
@@ -250,8 +219,7 @@
   }
 
   function setProgress(i) {
-    var pct = Math.round(((i + 1) / Q.length) * 100);
-    fill.style.width = pct + '%';
+    fill.style.width = Math.round(((i + 1) / Q.length) * 100) + '%';
     plabel.textContent = pad(i + 1) + ' / ' + pad(Q.length);
   }
 
@@ -272,7 +240,7 @@
     var el = swap(
       '<div class="q-wrap"><div class="q-card sheet">' +
         '<div class="q-top">' +
-          (i > 0 ? '<button class="q-back" type="button" data-back>' + I.back + 'Voltar</button>' : '<span class="meta">Diagnóstico Cascata</span>') +
+          (i > 0 ? '<button class="q-back" type="button" data-back>' + I.back + 'Voltar</button>' : '<span class="meta">Diagnóstico gratuito</span>') +
           '<span class="meta tnum">' + pad(i + 1) + ' de ' + pad(Q.length) + '</span>' +
         '</div>' +
         '<h2 class="hx q-title" tabindex="-1" data-focus>' + q.title + '</h2>' +
@@ -307,9 +275,9 @@
   /* ---------------------------------------------------------------- insight */
   function renderInsight(key) {
     var d = INSIGHTS[key](answers);
-    phase('insight', 'Por que isso importa');
+    phase('insight', 'Vale saber');
     var big = d.word
-      ? '<div class="dx ins-num" style="font-size:clamp(52px,8.4vw,118px)">' + esc(d.word) + '</div>'
+      ? '<div class="dx ins-num ins-word">' + esc(d.word) + '</div>'
       : '<div class="dx ins-num tnum">' + esc(d.num) + '<small>' + esc(d.small) + '</small></div>';
     var el = swap(
       '<div class="ins"><div class="ins-card glass">' +
@@ -333,16 +301,16 @@
   /* ---------------------------------------------------------------- análise */
   function finishQuiz() {
     var r = compute(answers);
-    O.state.set({ answers: answers, score: r.score, profile: { key: r.key, name: r.name }, quizDoneAt: Date.now() });
-    O.sb.lead({ stage: 'quiz_completed', answers: answers, score: r.score, profile: r.name });
-    O.sb.event('quiz_complete', null, { score: r.score, profile: r.key });
-    O.track('QuizComplete', { score: r.score, profile: r.key });
+    O.state.set({ answers: answers, score: r.n, profile: { key: r.key, name: r.name, level: r.level }, quizDoneAt: Date.now() });
+    O.sb.lead({ stage: 'quiz_completed', answers: answers, score: r.n, profile: r.name });
+    O.sb.event('quiz_complete', null, { habits: r.n, profile: r.key });
+    O.track('QuizComplete', { habits: r.n, profile: r.key });
     renderAnalysis(r);
   }
 
   function renderAnalysis(r) {
     phase('analysis', 'Analisando');
-    var steps = ['Localizando onde fica o seu stop', 'Calculando a sua distância de liquidação', 'Comparando com o comportamento da maioria', 'Montando o seu Índice de Combustível'];
+    var steps = ['Entendendo o seu momento', 'Vendo como você começaria', 'Comparando com os hábitos de quem perde dinheiro', 'Montando o seu resultado'];
     var el = swap(
       '<div class="an">' +
         '<div class="an-orbit"><svg viewBox="0 0 150 150" fill="none"><circle cx="75" cy="75" r="68" stroke="rgba(255,255,255,.12)" stroke-width="1"/><path d="M75 7a68 68 0 0 1 68 68" stroke="url(#ag)" stroke-width="2" stroke-linecap="round"/><circle cx="143" cy="75" r="5" fill="#fff"/><circle cx="27" cy="27" r="3.5" stroke="#B9BCF4" stroke-width="1.4"/><defs><linearGradient id="ag" x1="75" y1="7" x2="143" y2="75"><stop stop-color="#B9BCF4" stop-opacity="0"/><stop offset="1" stop-color="#fff"/></linearGradient></defs></svg><b class="tnum" id="anPct">0%</b></div>' +
@@ -381,17 +349,17 @@
     var lc = C.lead || {};
     var el = swap(
       '<div class="cap"><div class="cap-card sheet">' +
-        '<span class="cap-badge">' + I.lock + 'Diagnóstico pronto</span>' +
-        '<h2 class="hx cap-h" tabindex="-1" data-focus>Seu Índice de Combustível <span class="acc">está calculado.</span></h2>' +
-        '<p class="cap-p">Deixe seu contato para ver o resultado. É por ele que avisamos quando a janela de entrada da Off Society abrir ou fechar.</p>' +
+        '<span class="cap-badge">' + I.lock + 'Resultado pronto</span>' +
+        '<h2 class="hx cap-h" tabindex="-1" data-focus>Seu resultado <span class="acc">está pronto.</span></h2>' +
+        '<p class="cap-p">Deixe seu contato para ver quantos dos 5 hábitos de quem perde dinheiro você tem. É por ele que avisamos quando a porta da Off Society abrir ou fechar.</p>' +
         '<form class="cap-form" novalidate>' +
           '<label class="field" data-f="name"><span>Primeiro nome</span><input name="name" autocomplete="given-name" placeholder="Como você quer ser chamado" value="' + esc(s.name || '') + '" required><em class="err-msg">Digite seu nome.</em></label>' +
           '<label class="field" data-f="whatsapp"><span>WhatsApp com DDD' + (lc.requireWhatsapp === false ? ' (opcional)' : '') + '</span><input name="whatsapp" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="(11) 91234-5678" value="' + esc(s.whatsapp || '') + '"><em class="err-msg">Confira o número com DDD.</em></label>' +
           '<label class="field" data-f="email"><span>E-mail' + (lc.emailRequired ? '' : ' (opcional)') + '</span><input name="email" type="email" inputmode="email" autocomplete="email" placeholder="voce@email.com" value="' + esc(s.email || '') + '"><em class="err-msg">Confira o e-mail.</em></label>' +
-          '<button class="btn btn-dark btn-xl btn-block" type="submit">Ver meu diagnóstico ' + I.next + '</button>' +
+          '<button class="btn btn-dark btn-xl btn-block" type="submit">Ver meu resultado ' + I.next + '</button>' +
           '<p class="cap-legal">Seus dados ficam só com a Off Society. Nada de spam, e você pode pedir a exclusão quando quiser.</p>' +
         '</form>' +
-        '<div class="cap-blur" aria-hidden="true"><b class="tnum">' + r.score + '/100</b><span>Perfil: <b style="filter:blur(5px)">' + esc(r.name) + '</b></span></div>' +
+        '<div class="cap-blur" aria-hidden="true"><b class="tnum">' + r.n + '/5</b><span>hábitos de quem perde · <b style="filter:blur(5px)">' + esc(r.level) + '</b></span></div>' +
       '</div></div>');
 
     var form = el.querySelector('form');
@@ -409,9 +377,9 @@
       flag('email', (lc.emailRequired || email.length) ? !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) : false);
       if (!ok) { var f = form.querySelector('.err input'); if (f) f.focus(); return; }
       O.state.set({ name: name, whatsapp: wa ? maskPhone(wa) : '', email: email });
-      O.sb.lead({ stage: 'lead_captured', name: name, whatsapp: wa ? '+55' + wa : '', email: email, answers: answers, score: r.score, profile: r.name });
+      O.sb.lead({ stage: 'lead_captured', name: name, whatsapp: wa ? '+55' + wa : '', email: email, answers: answers, score: r.n, profile: r.name });
       O.sb.event('lead_captured');
-      O.track('Lead', { content_name: 'Diagnóstico Cascata', profile: r.key });
+      O.track('Lead', { content_name: 'Diagnóstico', profile: r.key });
       renderResult(r);
     });
   }
@@ -420,48 +388,47 @@
   function renderResult(r) {
     phase('result', 'Seu resultado');
     var name = O.firstName(O.state.get().name);
-    var detected = r.traps.filter(function (t) { return t.s === 'detected'; }).length;
-    var lbl = { detected: 'Detectado', risk: 'Atenção', ok: 'Sob controle' };
-    var L = Math.PI * 170;
+    var lbl = { detected: 'Você tem', risk: 'Fique de olho', ok: 'Você não tem' };
     var AUD = window.OFF_AUDIOS || {};
     var aud = Object.keys(AUD).some(function (k) { return !!AUD[k].src; });
+    // arco dividido em 5 segmentos (um por hábito)
+    var R = 170, segs = '', gap = 0.035;
+    for (var s = 0; s < 5; s++) {
+      var a0 = Math.PI - (s / 5) * Math.PI - (s ? gap : 0) * 0.5, a1 = Math.PI - ((s + 1) / 5) * Math.PI + (s < 4 ? gap : 0) * 0.5;
+      var x0 = 200 + R * Math.cos(a0), y0 = 200 - R * Math.sin(a0), x1 = 200 + R * Math.cos(a1), y1 = 200 - R * Math.sin(a1);
+      segs += '<path class="g-seg" data-i="' + s + '" d="M' + x0.toFixed(1) + ' ' + y0.toFixed(1) + ' A' + R + ' ' + R + ' 0 0 1 ' + x1.toFixed(1) + ' ' + y1.toFixed(1) + '"/>';
+    }
     var rows = r.traps.map(function (t, k) {
       return '<li class="row"><button class="row-h trap" type="button" aria-expanded="false">' +
         '<span class="idx">' + pad(k + 1) + '</span>' +
-        '<span class="row-t"><small>Armadilha do Stop Óbvio · ' + pad(k + 1) + '</small><b>' + esc(t.t) + '</b></span>' +
+        '<span class="row-t"><small>Hábito ' + pad(k + 1) + '</small><b>' + esc(t.t) + '</b></span>' +
         '<span class="trap-status ' + t.s + '">' + lbl[t.s] + '</span>' +
         '<span class="row-a">' + I.arrow + '</span></button>' +
         '<div class="row-b"><div><div class="row-in"><p>' + esc(t.x) + '</p></div></div></div></li>';
     }).join('');
-    var summary = r.beginner
-      ? 'Pontos de atenção para quem está começando'
-      : detected + ' de 4 armadilhas detectadas';
     var el = swap(
       '<div class="res">' +
         '<div class="res-top">' +
-          '<div class="gauge" data-reveal>' +
-            '<svg viewBox="0 0 400 220"><defs><linearGradient id="gg" x1="0" x2="1"><stop offset="0" stop-color="#3542E6"/><stop offset=".6" stop-color="#B9BCF4"/><stop offset="1" stop-color="#fff"/></linearGradient><filter id="gl"><feGaussianBlur stdDeviation="6"/></filter></defs>' +
-              '<path d="M30 200 A170 170 0 0 1 370 200" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="16" stroke-linecap="round"/>' +
-              '<path id="gArcGlow" d="M30 200 A170 170 0 0 1 370 200" fill="none" stroke="url(#gg)" stroke-width="16" stroke-linecap="round" stroke-dasharray="' + L + '" stroke-dashoffset="' + L + '" filter="url(#gl)" opacity=".6"/>' +
-              '<path id="gArc" d="M30 200 A170 170 0 0 1 370 200" fill="none" stroke="url(#gg)" stroke-width="16" stroke-linecap="round" stroke-dasharray="' + L + '" stroke-dashoffset="' + L + '"/>' +
-              '<circle id="gDot" cx="30" cy="200" r="7" fill="#fff"/>' +
+          '<div class="gauge g-habits" data-reveal>' +
+            '<svg viewBox="0 0 400 220"><defs><filter id="gl"><feGaussianBlur stdDeviation="5"/></filter></defs>' +
+              '<g class="g-bg">' + segs + '</g><g class="g-fill" filter="url(#gl)" opacity=".55">' + segs + '</g><g class="g-fill">' + segs + '</g>' +
             '</svg>' +
-            '<div class="gauge-num"><b class="tnum" id="gNum">0</b><span>Índice de Combustível</span></div>' +
+            '<div class="gauge-num"><b class="tnum"><span id="gNum">0</span><small class="gauge-pct">/5</small></b><span>hábitos de quem perde dinheiro</span></div>' +
           '</div>' +
           '<div data-reveal style="--d:.1s">' +
-            '<span class="pill-live"><i class="dot-live"></i>' + (name ? esc(name) + ', seu perfil: ' : 'Seu perfil: ') + '<b>' + esc(r.name) + '</b></span>' +
+            '<span class="pill-live lvl-' + r.key + '"><i class="dot-live"></i>' + (name ? esc(name) + ' · ' : '') + '<b>' + esc(r.level) + '</b></span>' +
             '<h1 class="hx res-h" tabindex="-1" data-focus>' + r.h + '</h1>' +
             '<p class="res-p">' + r.p + '</p>' +
           '</div>' +
         '</div>' +
         '<div class="res-sheet sheet" data-reveal style="--d:.2s">' +
-          '<div class="res-sheet-h"><h2 class="hx h3">O que o diagnóstico <span class="acc">encontrou</span></h2><span class="meta">' + esc(summary) + '</span></div>' +
+          '<div class="res-sheet-h"><h2 class="hx h3">Os 5 hábitos de <span class="acc">quem perde dinheiro</span></h2><span class="meta">Toque em cada um</span></div>' +
           '<ul class="rows">' + rows + '</ul>' +
         '</div>' +
         '<div class="res-next" data-reveal style="--d:.3s">' +
           '<div class="res-av"><img src="assets/img/naio-avatar.webp" alt=""><i>' + (aud ? I.mic : I.msg) + '</i></div>' +
           '<div><b>' + (aud ? 'O Naio gravou áudios sobre o seu resultado.' : 'O Naio deixou uma mensagem sobre o seu resultado.') + '</b>' +
-            '<span>Conversa de 5 minutos · ' + (aud ? 'áudios curtos' : 'mensagens curtas') + ' e um vídeo de 30 segundos.</span></div>' +
+            '<span>Conversa de 5 minutos · ' + (aud ? 'áudios curtos' : 'mensagens curtas') + ', sem palavra difícil.</span></div>' +
           '<a class="btn btn-light btn-xl" href="' + O.withUtm('chat.html') + '" id="toChat">' + (aud ? 'Ouvir o Naio ' : 'Falar com o Naio ') + I.next + '</a>' +
         '</div>' +
       '</div>');
@@ -474,33 +441,22 @@
         b.setAttribute('aria-expanded', open);
       });
     });
-    var first = el.querySelector('.row .row-h');
-    // abre automaticamente a primeira armadilha detectada
-    var auto = Array.prototype.find.call(el.querySelectorAll('.row'), function (li) { return li.querySelector('.trap-status.detected'); });
-    if (auto) setTimeout(function () { auto.querySelector('.row-h').click(); }, 1300);
-    else if (first) setTimeout(function () { first.click(); }, 1300);
-
+    var auto = Array.prototype.find.call(el.querySelectorAll('.row'), function (li) { return li.querySelector('.trap-status.detected'); }) || el.querySelector('.row');
+    if (auto) setTimeout(function () { auto.querySelector('.row-h').click(); }, 1500);
     el.querySelector('#toChat').addEventListener('click', function () { O.sb.event('to_chat'); });
 
-    // animação do medidor
-    var arc = el.querySelector('#gArc'), glow = el.querySelector('#gArcGlow'), dot = el.querySelector('#gDot'), num = el.querySelector('#gNum');
-    var t0 = null, dur = O.reduceMotion ? 1 : 1800;
-    setTimeout(function () {
-      requestAnimationFrame(function loop(t) {
-        if (!t0) t0 = t;
-        var p = Math.min(1, (t - t0) / dur);
-        var e = 1 - Math.pow(1 - p, 3);
-        var v = r.score * e;
-        var off = L * (1 - v / 100);
-        arc.setAttribute('stroke-dashoffset', off);
-        glow.setAttribute('stroke-dashoffset', off);
-        var ang = Math.PI * (1 - v / 100);
-        dot.setAttribute('cx', 200 + 170 * Math.cos(ang));
-        dot.setAttribute('cy', 200 - 170 * Math.sin(ang));
-        num.textContent = Math.round(v);
-        if (p < 1) requestAnimationFrame(loop);
-      });
-    }, 350);
+    // acende um segmento por hábito
+    var num = el.querySelector('#gNum');
+    var fills = el.querySelectorAll('.g-fill .g-seg');
+    var k = 0;
+    function step() {
+      if (k >= r.n) return;
+      fills.forEach(function (p) { if (+p.getAttribute('data-i') === k) p.classList.add('on'); });
+      k++;
+      num.textContent = k;
+      setTimeout(step, O.reduceMotion ? 0 : 380);
+    }
+    setTimeout(step, 500);
   }
 
   /* ---------------------------------------------------------------- início */
@@ -514,11 +470,10 @@
 
   document.getElementById('startBtn').addEventListener('click', start);
 
-  // atalhos de teclado: 1–5 escolhem, Enter continua
   document.addEventListener('keydown', function (ev) {
     if (ev.target && /input|textarea/i.test(ev.target.tagName)) return;
     var n = parseInt(ev.key, 10);
-    if (n >= 1 && n <= 5) {
+    if (n >= 1 && n <= 4) {
       var b = current.querySelectorAll('.opt')[n - 1];
       if (b) b.click();
     } else if (ev.key === 'Enter') {
@@ -527,14 +482,14 @@
     }
   });
 
-  // ?etapa=resultado para revisar o layout (usa respostas de exemplo)
+  // ?etapa=pergunta|insight|captura|resultado para revisar o layout
   var preview = new URLSearchParams(location.search).get('etapa');
   if (preview) {
-    answers = { market: 'cripto', exp: '6-24', loss: 'muito', stop: 'fundo', lev: '10a20', entry: 'rompimento', sweep: 'varias', block: 'metodo', capital: 'sobra' };
+    answers = { know: 'ouvi', why: 'renda', print: 'muito', entry: 'dica', fear: 'golpe', time: '30', learn: 'aovivo', capital: 'naosei' };
     var r0 = compute(answers);
     if (preview === 'resultado') renderResult(r0);
     else if (preview === 'captura') renderCapture(r0);
-    else if (preview === 'insight') { qi = 3; renderInsight('stop'); }
+    else if (preview === 'insight') { qi = 3; renderInsight('crowd'); }
     else if (preview === 'pergunta') renderQuestion(3);
   }
 })();

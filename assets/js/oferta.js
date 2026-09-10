@@ -74,7 +74,7 @@
   if (V.salaOff && window.OFFMedia) {
     var sv = $('#salaVideo');
     sv.hidden = false;
-    window.OFFMedia.mount(sv, { url: V.salaOff, poster: V.salaOffPoster, title: 'Trecho de uma Sala Off', sub: 'Ao vivo', source: 'offer_sala' });
+    window.OFFMedia.mount(sv, { url: V.salaOff, poster: V.salaOffPoster, title: 'Trecho de um Meet Fechado', sub: 'Ao vivo', source: 'offer_sala' });
   }
   var sal = C.salaOff || {};
   var sw = $('#salaWhen');
@@ -99,8 +99,8 @@
     ['Quanto dinheiro preciso para começar a operar?', 'Para começar, nenhum: você começa na conta demo. Quando for para o real, a regra é posição mínima, escalando só quando o diário sustenta (Protocolo de Exposição). Nunca opere com reserva de emergência, empréstimo ou cartão.'],
     ['Vocês mandam sinais de entrada?', 'Não. É proibido pedir ou dar “entrada agora” no grupo. O Naio mostra o plano dele, na conta dele, e explica o raciocínio para você aprender a ler sozinho.'],
     ['Qual corretora ou exchange vou usar?', 'A Off Society não indica nem empurra corretora. O curso ensina você a verificar a regulação da corretora antes de abrir conta.'],
-    ['Como funciona o contato direto com o Naio?', 'Bloco fixo de perguntas no fim de cada Sala Off, canal de dúvidas no grupo respondido pelo Naio e revisão de diários de membros ao vivo.'],
-    ['Quando acontece a Sala Off?', 'Ao vivo, ' + sched + '. Sempre no mesmo formato: abertura com o mapa do dia, sessão, blindagem, revisão (perdas incluídas) e perguntas.'],
+    ['Como funciona o contato direto com o Naio?', 'Bloco fixo de perguntas no fim de cada Meet Fechado, canal de dúvidas no grupo respondido pelo Naio e revisão de diários de membros ao vivo.'],
+    ['Quando acontece o Meet Fechado?', 'Ao vivo, ' + sched + '. Sempre no mesmo formato: abertura com o mapa do dia, sessão, blindagem, revisão (perdas incluídas) e perguntas.'],
     ['Quanto custa?', priceAnswer + ' Com ' + G + ' dias de garantia.'],
     ['Por que o preço é tão baixo?', cheapAnswer],
     ['Isso é recomendação de investimento?', 'Não. É conteúdo educacional. As operações nas lives são feitas na conta do Naio, com fins educacionais, e nenhum tamanho de posição é sugerido para membros.'],
@@ -196,7 +196,7 @@
     var dist = Math.abs(e - z) / e;
     var lev = Math.floor(1 / (dist * 1.25));
     cDist.textContent = (dist * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%';
-    cLev.textContent = lev < 1 ? 'sem alav.' : Math.min(lev, 125) + 'x';
+    cLev.textContent = lev < 1 ? 'Seguro' : 'Nível ' + Math.min(lev, 125);
   }
   cEntry.addEventListener('input', calc);
   cZone.addEventListener('input', calc);

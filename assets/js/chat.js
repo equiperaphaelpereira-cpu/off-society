@@ -1,7 +1,8 @@
 /* ==========================================================================
-   ETAPA 2 · CHAT — conversa roteirizada com o Naio
-   Personalizada com as respostas do quiz. Áudios com waveform, velocidade
-   1x/1,5x/2x e transcrição; vídeo; cards; objeções em menu.
+   ETAPA 2 · CHAT — conversa roteirizada com o Naio (público leigo)
+   Ritmo humano: pausa de leitura, digitação proporcional ao tamanho da
+   mensagem com variação natural, "visto" nas mensagens do lead.
+   A maior parte da explicação vem em áudio; sem arquivo, vira texto.
    ========================================================================== */
 (function () {
   'use strict';
@@ -16,12 +17,14 @@
   var S = O.state.get();
   var A = S.answers || {};
   var name = O.firstName(S.name);
-  var beginner = A.exp === 'nunca' || A.market === 'nenhum';
+  var tried = A.know === 'tentei' || A.know === 'opero';
   var chat = {};
   var lastWho = null;
+  var afterUser = false;
   var P = C.price || {};
-  var PRICE = (P.label || 'R$ 97') + (P.period || '');
+  var PRICE = O.priceText();
   var G = C.guaranteeDays || 7;
+  var AUD_READY = Object.keys(AUD).some(function (k) { return !!AUD[k].src; });
 
   var I = {
     play: '<svg class="i-play" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a1 1 0 001.5.86l12.2-7.5a1 1 0 000-1.72L8.5 3.64A1 1 0 007 4.5z"/></svg>',
@@ -38,10 +41,28 @@
   function now() { var d = new Date(); return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
   function md(s) { return O.esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>'); }
   function wait(ms) { return O.delay(ms * SPEED); }
+  function rand(a, b) { return a + Math.random() * (b - a); }
   function fmt(s) { if (!isFinite(s)) return '0:00'; s = Math.max(0, Math.round(s)); return Math.floor(s / 60) + ':' + pad(s % 60); }
   function scrollDown() { thread.scrollTo({ top: thread.scrollHeight, behavior: O.reduceMotion ? 'auto' : 'smooth' }); }
   function save() { O.state.set({ chat: chat }); O.sb.lead({ chat: chat }); }
   function setStatus(t, active) { statusEl.textContent = t; statusEl.classList.toggle('act', !!active); }
+
+  /* ------------------------------------------------------------ ritmo humano */
+  // Antes de responder: se o lead acabou de escrever, o Naio "lê" (pausa maior).
+  function thinkPause() {
+    var ms = afterUser ? rand(1500, 2500) : rand(800, 1500);
+    afterUser = false;
+    return wait(ms);
+  }
+  // Tempo digitando: proporcional ao tamanho, com variação natural.
+  function typingMs(text) {
+    var base = Math.min(7000, Math.max(1500, 1000 + text.length * 45));
+    return base * rand(0.9, 1.2);
+  }
+  function markRead() {
+    var mine = thread.querySelectorAll('.msg.me:not(.read)');
+    for (var i = 0; i < mine.length; i++) mine[i].classList.add('read');
+  }
 
   function add(html, who, cls) {
     var m = document.createElement('div');
@@ -55,56 +76,61 @@
   }
 
   function indicator(kind, ms) {
-    var prev = lastWho;
-    var m = add(kind === 'audio'
-      ? '<div class="bubble"><span class="rec"><i></i>gravando áudio…</span></div>'
-      : '<div class="bubble"><span class="typing"><i></i><i></i><i></i></span></div>', 'bot', 'ind');
-    setStatus(kind === 'audio' ? 'gravando áudio…' : 'digitando…', true);
-    return wait(ms).then(function () {
-      m.remove();
-      lastWho = prev;
-      setStatus('online');
+    return thinkPause().then(function () {
+      markRead();
+      var prev = lastWho;
+      var m = add(kind === 'audio'
+        ? '<div class="bubble"><span class="rec"><i></i>gravando áudio…</span></div>'
+        : '<div class="bubble"><span class="typing"><i></i><i></i><i></i></span></div>', 'bot', 'ind');
+      setStatus(kind === 'audio' ? 'gravando áudio…' : 'digitando…', true);
+      return wait(ms).then(function () {
+        m.remove();
+        lastWho = prev;
+        setStatus('online');
+      });
     });
   }
 
   function say(text) {
     if (!text) return Promise.resolve();
-    var ms = Math.min(2400, Math.max(650, 380 + text.length * 17));
-    return indicator('text', ms).then(function () {
+    return indicator('text', typingMs(text)).then(function () {
       add('<div class="bubble">' + md(text) + '<span class="tm">' + now() + '</span></div>', 'bot');
-      return wait(300);
+      return wait(250);
     });
   }
 
   function me(text) {
     add('<div class="bubble">' + O.esc(text) + '<span class="tm">' + now() + '</span></div>', 'me');
+    afterUser = true;
   }
 
-  function card(html, cls, ms) {
-    return indicator('text', ms || 1100).then(function () {
+  function card(html, cls) {
+    return indicator('text', rand(1400, 2200)).then(function () {
       var m = add(html, 'bot', cls);
-      return wait(700).then(function () { return m; });
+      return wait(900).then(function () { return m; });
     });
   }
 
   /* ------------------------------------------------------------ respostas */
   function choices(opts) {
-    return new Promise(function (resolve) {
-      chipsEl.innerHTML = '';
-      opts.forEach(function (o, i) {
-        var b = document.createElement('button');
-        b.type = 'button';
-        b.className = 'chip' + (o.primary ? ' primary' : '') + (o.ghost ? ' ghost' : '');
-        b.style.setProperty('--i', i);
-        b.textContent = o.l;
-        b.addEventListener('click', function () {
-          chipsEl.innerHTML = '';
-          if (!o.silent) me(o.l);
-          resolve(o);
+    return wait(350).then(function () {
+      return new Promise(function (resolve) {
+        chipsEl.innerHTML = '';
+        opts.forEach(function (o, i) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'chip' + (o.primary ? ' primary' : '') + (o.ghost ? ' ghost' : '');
+          b.style.setProperty('--i', i);
+          b.textContent = o.l;
+          b.addEventListener('click', function () {
+            chipsEl.innerHTML = '';
+            if (!o.silent) me(o.l);
+            resolve(o);
+          });
+          chipsEl.appendChild(b);
         });
-        chipsEl.appendChild(b);
+        setTimeout(scrollDown, 60);
       });
-      setTimeout(scrollDown, 60);
     });
   }
 
@@ -154,16 +180,14 @@
     return out;
   }
 
-  var AUD_READY = Object.keys(AUD).some(function (k) { return !!AUD[k].src; });
-
-  // Enquanto o áudio não foi gravado (src vazio), a fala vira mensagens de texto.
+  // Enquanto o áudio não foi gravado (src vazio), a fala vira mensagens de texto curtas.
   function sayLong(text) {
     var parts = text.match(/[^.!?]+[.!?]+["”*]*(\s+|$)|[^.!?]+$/g) || [text];
     var chunks = [], cur = '';
     parts.forEach(function (p) {
       p = p.trim();
       if (!p) return;
-      if (cur && (cur + ' ' + p).length > 240) { chunks.push(cur); cur = p; }
+      if (cur && (cur + ' ' + p).length > 200) { chunks.push(cur); cur = p; }
       else cur = cur ? cur + ' ' + p : p;
     });
     if (cur) chunks.push(cur);
@@ -174,7 +198,7 @@
     var a = AUD[id];
     if (!a) return Promise.resolve();
     if (!a.src) return sayLong(a.textChat || a.text);
-    return indicator('audio', 1500 + Math.min(1600, a.text.length * 2)).then(function () {
+    return indicator('audio', rand(2800, 4400)).then(function () {
       return new Promise(function (resolve) {
         var bars = waveform(id, 36).map(function (h) { return '<i style="height:' + h + '%"></i>'; }).join('');
         var m = add(
@@ -199,7 +223,7 @@
         el.src = a.src;
         var done = false, speeds = [1, 1.5, 2], si = 0;
 
-        function finish(ms) { if (done) return; done = true; setTimeout(resolve, ms == null ? 500 * SPEED : ms); }
+        function finish(ms) { if (done) return; done = true; setTimeout(resolve, ms == null ? 700 * SPEED : ms); }
         function paint(p) {
           var k = Math.round(p * barEls.length);
           for (var i = 0; i < barEls.length; i++) barEls[i].classList.toggle('on', i < k);
@@ -261,7 +285,7 @@
           if (tr.hidden) {
             openTr();
             O.sb.event('audio_transcript', id);
-            finish(Math.min(9000, 1800 + a.text.length * 12) * SPEED);
+            finish(Math.min(10000, 2000 + a.text.length * 14) * SPEED);
           } else {
             tr.hidden = true;
             trBtn.setAttribute('aria-expanded', 'false');
@@ -275,18 +299,18 @@
 
   /* ------------------------------------------------------------ mídia */
   function image(src, caption) {
-    return indicator('text', 900).then(function () {
+    return indicator('text', rand(1200, 1800)).then(function () {
       add('<figure class="media"><img src="' + src + '" alt="" loading="lazy">' +
         (caption ? '<figcaption>' + md(caption) + '<span class="tm">' + now() + '</span></figcaption>' : '') +
         '</figure>', 'bot');
-      return wait(1100);
+      return wait(1400);
     });
   }
 
   function mediaWait(player, idleMs, capMs) {
     return new Promise(function (resolve) {
       var done = false;
-      function fin() { if (done) return; done = true; clearTimeout(t1); clearTimeout(t2); setTimeout(resolve, 600); }
+      function fin() { if (done) return; done = true; clearTimeout(t1); clearTimeout(t2); setTimeout(resolve, 700); }
       var t1 = setTimeout(fin, idleMs * SPEED), t2;
       player.on('play', function () { clearTimeout(t1); clearTimeout(t2); t2 = setTimeout(fin, capMs); });
       player.on('end', fin);
@@ -294,35 +318,35 @@
   }
 
   function cascadeVideo() {
-    return indicator('text', 1000).then(function () {
+    return indicator('text', rand(1400, 2000)).then(function () {
       var m = add('<div class="media video"><div class="cd-host"></div></div>', 'bot');
       var player = window.CascadeDemo.mount(m.querySelector('.cd-host'), { compact: true, source: 'chat' });
-      return mediaWait(player, 9000, 42000);
+      return mediaWait(player, 10000, 42000);
     });
   }
 
   function salaVideo() {
     if (!C.videos || !C.videos.salaOff || !window.OFFMedia) return Promise.resolve();
-    return indicator('text', 1000).then(function () {
+    return indicator('text', 1400).then(function () {
       var m = add('<div class="media video"><div class="mv-host"></div><div class="cap"><b>Trecho de uma Sala Off</b><span>ao vivo</span></div></div>', 'bot');
       var player = window.OFFMedia.mount(m.querySelector('.mv-host'), { url: C.videos.salaOff, poster: C.videos.salaOffPoster, title: 'Sala Off', source: 'chat' });
-      return mediaWait(player, 8000, 90000);
+      return mediaWait(player, 9000, 90000);
     });
   }
 
   /* ------------------------------------------------------------ cards */
   var STAGES = [
-    { t: 'Combustível', d: 'Mapear onde estão os stops e a alavancagem da maioria.' },
-    { t: 'Gatilho', d: 'Identificar o que pode disparar a cascata: notícia, abertura de sessão, dólar.' },
-    { t: 'Cascata', d: 'Operar a reação, nunca a antecipação. Varredura ou continuação.' },
-    { t: 'Blindagem', d: 'Stop fora da zona óbvia e alavancagem pela distância. Nunca ser combustível.' }
+    { t: 'Combustível', d: 'Olhar onde a fileira de dominó está montada.' },
+    { t: 'Gatilho', d: 'Ver o que pode dar o empurrão, tipo uma notícia.' },
+    { t: 'Cascata', d: 'Esperar as peças caírem e só depois agir.' },
+    { t: 'Blindagem', d: 'Colocar o capacete: decidir antes quanto aceita perder.' }
   ];
 
   function stagesCard() {
     return card('<div class="stg">' + STAGES.map(function (s, i) {
       return '<div class="stg-c"><span class="n">0' + (i + 1) + '</span>' + I.dots +
         '<div><b>' + s.t + '</b><p>' + s.d + '</p></div></div>';
-    }).join('') + '</div>', 'wide', 1200);
+    }).join('') + '</div>', 'wide');
   }
 
   function li(t, d) { return '<li>' + I.check + '<div><b>' + t + '</b><span>' + d + '</span></div></li>'; }
@@ -330,36 +354,44 @@
   function offerCard() {
     return card('<div class="card-w"><span class="meta">Off Society · o que você recebe</span>' +
       '<h4>Tudo o que eu não tive quando perdi os R$ 20 mil.</h4><ul>' +
-      li('Curso do zero ao avançado', 'Do cadastro na corretora às estratégias do protocolo') +
-      li('Sala Off ao vivo', 'De segunda a sexta, operando na minha conta') +
-      li('Contato direto comigo', 'Perguntas no fim de cada live e canal de dúvidas') +
-      li('Grupo fechado', 'Mapa da semana, diários e dúvidas do protocolo') +
-      li('Ferramentas', 'Calculadora de Blindagem, Checklist Cascata e Diário') +
-      '</ul></div>', '', 1300);
+      li('Curso do zero ao avançado', 'Do que é dólar e bitcoin até as minhas estratégias') +
+      li('Meet fechado ao vivo', 'De segunda a sexta, eu operando na minha conta') +
+      li('Modo treino primeiro', 'Você começa com dinheiro de mentira') +
+      li('Contato direto comigo', 'Perguntas no fim de cada meet') +
+      li('Grupo fechado', 'Gente começando junto com você') +
+      '</ul></div>');
   }
 
   function priceCard() {
-    var perDay = P.showPerDay && P.period ? '≈ ' + O.perDay() + ' por dia. ' : '';
-    return card('<div class="card-w price-c"><span class="meta">Entrada na Off Society</span>' +
-      '<div class="big tnum">' + O.esc(P.label || 'R$ 97') + '<small>' + O.esc(P.period || P.accessNote || '') + '</small></div>' +
-      '<p>' + perDay + 'Menos do que costuma custar uma única posição alavancada liquidada.</p></div>', '', 900);
+    var stack = C.valueStack || [], total = O.stackTotal();
+    var list = stack.length
+      ? '<span class="meta">Se fosse pagar cada coisa separada</span><ul class="stack">' +
+        stack.map(function (i) { return '<li><span>' + O.esc(i.item) + '</span><b class="tnum">' + O.brl0(i.value) + '</b></li>'; }).join('') +
+        '</ul><div class="stack-total"><span>Total</span><s class="tnum">' + O.brl0(total) + '</s></div>'
+      : '';
+    var note = P.period
+      ? (P.showPerDay ? '≈ ' + O.perDay() + ' por dia.' : '')
+      : 'Pagamento único, acesso vitalício, sem mensalidade.';
+    return card('<div class="card-w price-c">' + list +
+      '<span class="meta">Na Off Society</span>' +
+      '<div class="big tnum">' + O.esc(P.label || 'R$ 97') + '<small>' + O.esc(P.period || 'uma vez só') + '</small></div>' +
+      '<p>' + note + '</p></div>');
   }
 
   function salaCard() {
-    return card('<div class="card-w sala-c"><span class="meta">Formato da Sala Off</span><h4>Todo dia, as 4 etapas ao vivo.</h4><ol>' +
-      '<li><div><b>Abertura</b><span>Mapa do dia: zonas de stop e liquidação, calendário, leitura do dólar</span></div></li>' +
-      '<li><div><b>Sessão</b><span>Opero a minha conta explicando o raciocínio e o que invalidaria a ideia</span></div></li>' +
-      '<li><div><b>Blindagem</b><span>Como calculei lote, alavancagem e stop</span></div></li>' +
-      '<li><div><b>Revisão</b><span>O que funcionou e o que não funcionou, perdas incluídas</span></div></li>' +
-      '<li><div><b>Perguntas</b><span>Contato direto comigo</span></div></li>' +
-      '</ol></div>', '', 1300);
+    return card('<div class="card-w sala-c"><span class="meta">Como é o meet fechado</span><h4>Todo dia, ao vivo, do mesmo jeito.</h4><ol>' +
+      '<li><div><b>Abertura</b><span>O que pode mexer com o mercado hoje</span></div></li>' +
+      '<li><div><b>Ao vivo</b><span>Eu opero a minha conta explicando cada decisão</span></div></li>' +
+      '<li><div><b>Proteção</b><span>Quanto eu arrisquei e por quê</span></div></li>' +
+      '<li><div><b>Revisão</b><span>O que deu certo e o que deu errado</span></div></li>' +
+      '<li><div><b>Perguntas</b><span>Você pergunta, eu respondo</span></div></li>' +
+      '</ol></div>');
   }
 
   function ctaCard() {
-    var perks = G + ' dias de garantia';
-    return card('<div class="card-w cta-c"><span class="meta">Etapa 3 de 3</span><h4>Off Society</h4>' +
-      '<p>Tudo o que está incluso, as regras da sociedade e a sua entrada por ' + O.esc(PRICE) + ' com ' + perks + '.</p>' +
-      '<a class="btn btn-light" href="' + O.withUtm('oferta.html') + '" data-go>Ver a Off Society ' + I.next + '</a></div>', '', 900)
+    return card('<div class="card-w cta-c"><span class="meta">Último passo</span><h4>Off Society</h4>' +
+      '<p>Tudo o que está incluso, as regras da sociedade e a sua entrada por ' + O.esc(PRICE) + ', com ' + G + ' dias de garantia.</p>' +
+      '<a class="btn btn-light" href="' + O.withUtm('oferta.html') + '" data-go>Ver a Off Society ' + I.next + '</a></div>')
       .then(function (m) {
         m.querySelector('[data-go]').addEventListener('click', function () { O.sb.event('to_offer', 'chat_card'); });
         return m;
@@ -382,73 +414,74 @@
   }
 
   /* ------------------------------------------------------------ falas personalizadas */
-  function stopLine() {
+  function entryLine() {
     return {
-      fundo: 'Você disse que coloca o stop **logo abaixo do fundo**. É exatamente onde a maioria coloca. E é exatamente ali que o preço vai buscar liquidez.',
-      redondo: 'Você disse que coloca o stop **perto de número redondo**. Um estudo do Fed de Nova York encontrou quase 10% das ordens de stop e realização de lucro em preços terminados em 00. Você está no meio da multidão.',
-      sem: 'Você disse que **não usa stop**. Então quem decide a sua saída é a corretora: no preço de liquidação ou na chamada de margem. E esses preços ficam nas mesmas zonas que o stop de todo mundo.',
-      naosei: 'Você disse que ainda não sabe o que é stop. Relaxa, isso é bom: você ainda não aprendeu a colocá-lo no lugar errado.'
-    }[A.stop] || '';
+      dica: 'Você disse que, se começasse amanhã, seguiria **a dica de um amigo ou parente**. É o jeito mais comum de começar. E é exatamente assim que a maioria perde junto.',
+      influencer: 'Você disse que faria **o que algum influenciador mostrou**. Faz sentido, eles fazem parecer fácil. Só que ninguém posta o dia ruim.',
+      sozinho: 'Você disse que tentaria **aprender sozinho pelo YouTube**. Foi exatamente o que eu fiz. E me custou caro.',
+      alguem: 'Você disse que procuraria **alguém de confiança pra te ensinar**. Esse é o melhor instinto que você pode ter.'
+    }[A.entry] || '';
   }
-  function levLine() {
+  function fearLine() {
     return {
-      nao: 'Você disse que não usa alavancagem. Ótimo: você já está fora da parte mais violenta da cascata. Agora falta o resto do mapa.',
-      ate5: 'Você disse que usa até 5x. Com 5x, o preço precisa andar cerca de 20% contra você pra liquidar. Parece longe, até o dia em que não é.',
-      '10a20': 'Você disse que usa de 10x a 20x. Nessa faixa, o preço precisa andar só **5% a 10%** contra você pra liquidar a posição. É a distância de uma cascata.',
-      '20mais': 'Você disse que usa mais de 20x. Aí o preço precisa andar **menos de 5%** contra você. Um dia comum de mercado resolve isso.',
-      corretora: 'Você disse que usa a alavancagem que a corretora oferece. Com 1:500, **50 pips contra zeram uma conta de US$ 500**. É o jeito mais rápido de virar combustível.'
-    }[A.lev] || '';
+      golpe: 'Você disse que tem medo de cair em golpe. Com razão, tem muito por aí. Aqui ninguém pede pra você depositar dinheiro com a gente. Você aprende e, se quiser, opera na **sua própria conta**.',
+      perder: 'Você disse que seu maior medo é perder dinheiro. É por isso que todo mundo começa no modo treino. **Primeiro você erra com dinheiro de mentira.**',
+      entender: 'Você disse que tem medo de não entender nada. Por isso eu explico tudo assim, do jeito que você tá vendo aqui: sem palavra difícil.',
+      tempo: 'Você disse que tem medo de não ter tempo. As aulas você assiste no seu ritmo, e o meet fechado é ao vivo, de segunda a sexta.'
+    }[A.fear] || '';
   }
   function capitalLine() {
-    if (A.capital === 'reserva') return 'E uma coisa séria' + (name ? ', ' + name : '') + ': você disse que pensa em usar **parte da reserva de emergência**. Não faça isso. Reserva é pra emergência. Na Off Society todo mundo começa pela conta demo.';
-    if (A.capital === 'emprestimo') return 'E uma coisa séria: você disse que pensa em operar com **empréstimo ou cartão**. Não faça isso. Nunca. Na Off Society todo mundo começa pela conta demo, e dinheiro real só entra quando é um valor que você pode perder.';
+    if (A.capital === 'reserva') return 'E uma coisa séria' + (name ? ', ' + name : '') + ': você disse que começaria com a **reserva de emergência**. Não faça isso. Reserva é pra emergência. Você começa no modo treino e, quando for pro real, só com um valor que não te faça falta.';
+    if (A.capital === 'emprestimo') return 'E uma coisa séria: você disse que começaria com **empréstimo ou cartão**. Não faça isso. Nunca. Você começa no modo treino e, quando for pro real, só com um valor que não te faça falta.';
     return '';
   }
-  function blockLine() {
+  function learnLine() {
     return {
-      comeco: 'Você disse que não sabe por onde começar. O curso começa literalmente do cadastro na corretora.',
-      metodo: 'Você disse que opera no feeling. O protocolo é o contrário disso: quatro perguntas, sempre na mesma ordem, antes de qualquer entrada.',
-      emocional: 'Você disse que perde o controle emocional. Quase sempre isso é tamanho de posição. A Blindagem resolve antes de virar emoção.',
-      sozinho: 'Você disse que não tem ninguém pra tirar dúvida. Lá dentro você tem: toda live termina com um bloco de perguntas comigo.'
-    }[A.block] || '';
+      aovivo: 'Você disse que aprende melhor vendo alguém fazer. O meet fechado é exatamente isso: você me vê operando, ao vivo.',
+      ritmo: 'Você disse que prefere aprender no seu ritmo. O curso fica lá pra você assistir quando puder.',
+      duvida: 'Você disse que aprende melhor tirando dúvida. Todo meet termina com um bloco de perguntas comigo.',
+      tudo: 'Você disse que gosta de um pouco de tudo. Lá tem os três: curso no seu ritmo, meet ao vivo todo dia e perguntas comigo.'
+    }[A.learn] || '';
   }
   function windowLine() {
     var w = C.entryWindow || {};
     if (w.closesAt && !O.windowClosed()) {
       var d = new Date(w.closesAt);
       var when = d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' }) + ' às ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-      return 'Só um detalhe: a janela de entrada fecha em **' + when + '**. Depois disso, só lista de espera.';
+      return 'Só um detalhe: a porta fecha em **' + when + '**. Depois disso, só lista de espera.';
     }
     return 'Só um detalhe: a porta da Off Society abre poucas vezes. Fora da janela, só lista de espera.';
   }
 
-  /* ------------------------------------------------------------ objeções */
+  /* ------------------------------------------------------------ dúvidas */
+  var sal = C.salaOff || {};
+  var sched = (sal.schedule || 'de segunda a sexta') + (sal.time ? ', ' + sal.time : '');
   var OBJ = [
-    { id: 'iniciante', q: 'Nunca operei. Consigo acompanhar?', run: function () {
-      return say('Consegue. O curso começa literalmente do cadastro: como verificar se a corretora é regulada, abrir a conta, configurar a plataforma e ler o gráfico.')
-        .then(function () { return say('E ninguém opera dinheiro real antes de passar pela conta demo. É regra da sociedade.'); });
+    { id: 'golpe', q: 'Isso é golpe ou pirâmide?', run: function () { return audio('a9'); } },
+    { id: 'mensalidade', q: 'É mensalidade?', run: function () {
+      return say(P.period
+        ? 'A entrada é **' + PRICE + '**.'
+        : 'Não. É **' + (P.label || 'R$ 97') + ' uma vez só**, e o acesso é vitalício. Sem mensalidade e sem cobrança escondida.');
     } },
-    { id: 'capital', q: 'Quanto preciso pra começar?', run: function () {
-      return say('Pra começar: zero. Você começa na conta demo.')
-        .then(function () { return say('Quando for pro real, a regra é posição mínima, e só escala quando o diário sustenta. Demo → posição mínima → escala. É o Protocolo de Exposição.'); })
-        .then(function () { return say('De R$ 200 pra R$ 1.000 em um dia, a estratégia é a mesma. O que cresce é o tamanho da posição, e o prejuízo possível cresce junto. **Por isso a Blindagem vem antes da escala.**'); });
+    { id: 'iniciante', q: 'Nunca ouvi falar disso. É pra mim?', run: function () {
+      return say('É exatamente pra você. O curso começa do zero absoluto: o que é dólar, o que é bitcoin, como funciona uma corretora e como abrir a conta com segurança.')
+        .then(function () { return say('E ninguém usa dinheiro de verdade antes de passar pelo modo treino.'); });
     } },
-    { id: 'sala', q: 'Como funciona a Sala Off?', run: function () {
-      var sal = C.salaOff || {};
-      return say('É ao vivo, ' + (sal.schedule || 'de segunda a sexta') + (sal.time ? ', ' + sal.time : '') + '. Sempre no mesmo formato:')
+    { id: 'dinheiro', q: 'Preciso de muito dinheiro?', run: function () {
+      return say('Pra começar, nenhum. Você começa no modo treino, com dinheiro de mentira.')
+        .then(function () { return say('Quando for pro real, a regra é começar com um valor pequeno, que não te faça falta, e só aumentar quando o seu diário mostrar que você tá pronto.'); });
+    } },
+    { id: 'tempo', q: 'E se eu tiver pouco tempo?', run: function () {
+      return say('Dá pra começar com pouco tempo por dia. As aulas você assiste no seu ritmo, e o meet fechado é ao vivo, ' + sched + '. O que importa é a constância.');
+    } },
+    { id: 'sala', q: 'Como funciona o meet fechado?', run: function () {
+      return say('É ao vivo, ' + sched + '. Sempre no mesmo formato:')
         .then(salaCard)
         .then(salaVideo)
-        .then(function () { return say('Eu falo do meu plano, na minha conta. Nunca “entrem”, “comprem agora” ou “coloquem X lotes”. O objetivo é você aprender a ler, não copiar.'); });
-    } },
-    { id: 'sinal', q: 'Vocês mandam sinal de entrada?', run: function () {
-      return say('Não. E lá dentro é proibido pedir ou dar “entrada agora”.')
-        .then(function () { return say('Sinal te deixa dependente de alguém. Eu quero que você saiba mapear a zona, esperar o gatilho e se proteger sozinho.'); });
-    } },
-    { id: 'corretora', q: 'Qual corretora eu vou usar?', run: function () {
-      return say('Eu não empurro corretora nenhuma. No curso você aprende a verificar a regulação da corretora antes de abrir conta. Isso já te livra de muita furada.');
+        .then(function () { return say('Eu mostro o que eu faço na minha conta. Nunca falo “entra agora”. O objetivo é você aprender a pensar, não copiar.'); });
     } },
     { id: 'garantia', q: 'E se eu não gostar?', run: function () {
-      return say('Você tem **' + G + ' dias de garantia**. Entrou, assistiu às aulas, participou das lives e não curtiu? Pede o reembolso e recebe 100% de volta.');
+      return say('Você tem **' + G + ' dias de garantia**. Entrou, assistiu, participou dos meets e não curtiu? Pede o reembolso e recebe 100% de volta.');
     } }
   ];
 
@@ -483,40 +516,37 @@
     O.track('ChatStart');
     if (!AUD_READY) {
       var sl = document.getElementById('sideLead');
-      if (sl) sl.textContent = 'Mensagens curtas, um vídeo de 30 segundos e as respostas pras dúvidas mais comuns. Leva uns 5 minutos.';
+      if (sl) sl.textContent = 'Mensagens curtas e um vídeo de 30 segundos, sem palavra difícil. Leva uns 5 minutos.';
       var pn = document.getElementById('phNote');
-      if (pn) pn.lastChild.nodeValue = 'Mensagens do Naio para quem fez o Diagnóstico Cascata.';
+      if (pn) pn.lastChild.nodeValue = 'Mensagens do Naio para quem fez o diagnóstico.';
     }
     chapter(1);
-    await wait(700);
+    await wait(1300);
 
-    // 01 · diagnóstico
+    // 01 · seu resultado
     if (!name) {
-      await say('Fala! Aqui é o Naio. Antes de começar: como posso te chamar?');
+      await say('Oi! Aqui é o Naio. Antes de começar: como posso te chamar?');
       var nm = await ask({ placeholder: 'Seu primeiro nome', min: 2 });
       name = O.firstName(nm);
       O.state.set({ name: nm });
       O.sb.lead({ name: nm });
       await say('Prazer, ' + name + '!');
     } else {
-      await say('Fala, ' + name + '! Aqui é o Naio.');
+      await say('Oi, ' + name + '! Aqui é o Naio 👋');
     }
 
-    if (S.score != null) {
-      await say('Acabei de ver o seu Diagnóstico Cascata. Seu Índice de Combustível deu **' + S.score + '/100**. Perfil: **' + ((S.profile && S.profile.name) || '—') + '**.');
-    } else {
-      await say('Em poucos minutos eu te mostro por que a maioria perde dinheiro do mesmo jeito, e como operar do outro lado.');
+    if (S.score != null && S.score <= 5) {
+      await say(S.score > 0
+        ? 'Vi o seu diagnóstico: você tem **' + S.score + ' dos 5 hábitos** de quem perde dinheiro no mercado.'
+        : 'Vi o seu diagnóstico: você não tem nenhum dos 5 hábitos de quem perde dinheiro. Ótimo começo.');
+      if (S.score >= 2) await say('Calma, isso tem conserto. E é bem mais simples do que parece.');
     }
     await audio('a1');
-    await say(stopLine());
+    await say(entryLine());
 
-    var reaction = await choices(beginner ? [
-      { l: 'Faz sentido, quero entender mais', v: 'entender', reply: 'Então deixa eu te contar como eu descobri isso.' },
-      { l: 'Nunca tinha pensado nisso', v: 'novo', reply: 'Quase ninguém pensa. Por isso quase todo mundo perde do mesmo jeito.' }
-    ] : [
-      { l: 'Já perdi dinheiro exatamente assim', v: 'perdi', reply: 'Eu também. E foi caro.' },
-      { l: 'Nunca tinha pensado nisso', v: 'novo', reply: 'Quase ninguém pensa. Por isso quase todo mundo perde do mesmo jeito.' },
-      { l: 'Faz sentido, continua', v: 'continua', reply: 'Então deixa eu te contar como eu descobri isso.' }
+    var reaction = await choices([
+      { l: 'Me conta mais', v: 'mais', reply: 'Então deixa eu te contar a minha história. É curta.' },
+      { l: 'Por que a maioria perde?', v: 'porque', reply: 'Boa pergunta. A resposta começa na minha história.' }
     ]);
     chat.reacao = reaction.v;
     save();
@@ -524,31 +554,35 @@
 
     // 02 · história
     chapter(2);
-    await say('Pouca gente sabe dessa história.');
     await audio('a2');
-    await image('assets/img/naio-off-blue.webp', 'Anos operando no off. Só pra mim.');
+    await image('assets/img/naio-off-blue.webp', 'Longe da multidão. É daí que vem o **Off**.');
     await audio('a3');
-    if (AUD.a3 && AUD.a3.src) await say('Faço questão de repetir: esse resultado é meu, com o meu capital e a minha experiência. **Não é uma expectativa pra quem entra na Off Society.**');
-    await say(beginner ? 'Agora me conta você: o que te fez querer começar agora?' : 'Agora me conta você: qual foi a sua pior operação até hoje?');
-    var story = await ask({ placeholder: 'Escreva em uma frase…', skip: 'Prefiro não contar', min: 2 });
+    if (AUD.a3 && AUD.a3.src) await say('Faço questão de repetir: esse resultado é meu, com o meu dinheiro e a minha experiência. **Não é uma expectativa pra quem entra na Off Society.**');
+    await say(tried ? 'Agora me conta você: qual foi a sua pior experiência até hoje?' : 'Agora me conta você: o que te fez querer aprender sobre isso agora?');
+    var story = await ask({ placeholder: 'Escreva em uma frase…', skip: 'Prefiro não dizer', min: 2 });
     chat.historia = story;
     save();
     await say(story
-      ? 'Valeu por abrir isso comigo. ' + (beginner ? 'Começar sabendo onde a maioria erra já te coloca na frente.' : 'Guarda essa operação na cabeça, porque daqui a pouco você vai entender onde ela quebrou.')
+      ? (tried ? 'Valeu por abrir isso comigo. Daqui a pouco você vai entender o que deu errado.' : 'Valeu por me contar. Começar sabendo onde a maioria erra já te coloca na frente.')
       : 'Tranquilo. Vamos pro que interessa.');
-    await choices([{ l: 'E como funciona esse método?', v: 'metodo' }]);
+    await choices([{ l: 'Me explica como funciona', v: 'como' }]);
 
-    // 03 · protocolo
+    // 03 · como funciona
     chapter(3);
-    await say('Eu chamo de **Protocolo Cascata**. Antes de explicar, olha isso aqui:');
-    await cascadeVideo();
-    await stagesCard();
+    await say('Agora vou te explicar o mercado do jeito mais simples que existe.');
     await audio('a4');
-    await say(levLine());
+    await say('Olha a fileira de dominó acontecendo. É uma simulação de 30 segundos:');
+    await cascadeVideo();
+    await say('E o que eu faço pra não cair junto?');
+    await audio('a5');
+    await say('Resumindo numa imagem:');
+    await stagesCard();
+    await audio('a6');
+    await say(fearLine());
     await say(capitalLine());
     var where = await choices([
       { l: 'Onde eu aprendo isso?', v: 'onde' },
-      { l: 'Quero aprender isso', v: 'quero' }
+      { l: 'Quero aprender com você', v: 'quero' }
     ]);
     chat.interesse = where.v;
     save();
@@ -556,23 +590,24 @@
     // 04 · off society
     chapter(4);
     await say('Foi pra isso que eu abri a **Off Society**.');
-    await audio('a5');
+    await audio('a7');
     await offerCard();
     showOffer();
-    await say(blockLine());
+    await say(learnLine());
     if (C.hasOtherRevenue) {
       await say('A entrada custa **' + PRICE + '**, pra que ninguém fique de fora por causa do preço.');
     } else {
       await say('Agora, sobre o valor.');
-      await audio('a6');
+      await audio('a8');
     }
+    await say('Olha tudo o que você leva:');
     await priceCard();
-    await say('E tem **' + G + ' dias de garantia**. Entrou e não fez sentido pra você? Pede o reembolso e recebe tudo de volta. A garantia é sobre a comunidade, nunca sobre resultado financeiro.');
+    await say('E tem **' + G + ' dias de garantia**. Entrou e não fez sentido pra você? Pede o reembolso e recebe tudo de volta.');
     await say(windowLine());
     await menu();
 
-    await say('Boa' + (name ? ', ' + name : '') + '! Tô te esperando lá dentro.');
-    await audio('a7');
+    await say('Boa' + (name ? ', ' + name : '') + '! Te espero lá dentro.');
+    await audio('a10');
     await ctaCard();
     chat.completo = true;
     O.state.set({ chat: chat });

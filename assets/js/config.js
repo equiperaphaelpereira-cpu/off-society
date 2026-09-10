@@ -11,12 +11,26 @@ window.OFF_CONFIG = {
   price: {
     value: 97,                 // usado no pixel (InitiateCheckout)
     label: 'R$ 97',
-    period: '/mês',            // DEFINIR: '/mês' se for recorrente · '' se for pagamento único
-    periodLong: 'por mês',     // DEFINIR: 'por mês' · 'pagamento único'
-    accessNote: '',            // ex.: '12 meses de acesso' (se for pagamento único)
-    showPerDay: true           // mostra "≈ R$ 3,23 por dia" (só faz sentido se for mensal)
+    period: '',                // pagamento único (se virar recorrente: '/mês')
+    periodLong: 'pagamento único',
+    accessNote: 'acesso vitalício',
+    showPerDay: false          // "≈ R$ x por dia" só faz sentido em recorrência
   },
-  guaranteeDays: 7,            // 7 (CDC) ou 14 para cobrir duas semanas de Sala Off
+
+  /* ---------- Ancoragem (valor de referência de cada entregável) ----------
+     VALIDAR: use como referência preços reais de cursos, mentorias ao vivo e
+     comunidades equivalentes no mercado (seção 4.9 do documento mestre).
+     A página mostra cada item, a soma e o preço de entrada. */
+  valueStack: [
+    { item: 'Curso completo, do zero ao avançado', value: 997 },
+    { item: 'Meet fechado ao vivo, de segunda a sexta', value: 1497 },
+    { item: 'Contato direto com o Naio', value: 497 },
+    { item: 'Grupo fechado da sociedade', value: 297 },
+    { item: 'Modo treino guiado (do dinheiro de mentira ao real)', value: 197 },
+    { item: 'Ferramentas: calculadora, checklist, diário e mapa da semana', value: 197 },
+    { item: 'Aula especial: o dia 10 de outubro de 2025', value: 97 }
+  ],
+  guaranteeDays: 7,            // 7 (CDC) ou 14 para cobrir duas semanas de Meet Fechado
 
   /* Se existir afiliação com corretora/exchange, patrocínio ou produto mais caro
      planejado, troque para true: o funil passa a usar o argumento de preço da
@@ -43,7 +57,7 @@ window.OFF_CONFIG = {
     waitlistUrl: ''            // link do grupo/lista de espera quando a janela fechar
   },
 
-  /* ---------- Sala Off ---------- */
+  /* ---------- Meet fechado (lives) ---------- */
   salaOff: {
     schedule: 'de segunda a sexta',
     time: ''                   // DEFINIR: ex.: 'às 9h30 (horário de Brasília)'
@@ -52,7 +66,7 @@ window.OFF_CONFIG = {
   /* ---------- Vídeos (opcionais) ----------
      Aceita link do YouTube, Vimeo ou arquivo .mp4.
      vsl vazio  -> a página final mostra a animação "Protocolo Cascata em 30s".
-     salaOff    -> trecho real de uma live (aparece na seção Sala Off e no chat). */
+     salaOff    -> trecho real de um meet fechado (aparece na página final e no chat). */
   videos: {
     vsl: '',
     vslPoster: 'assets/img/naio-stage-blue.webp',

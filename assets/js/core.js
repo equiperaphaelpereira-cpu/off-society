@@ -264,12 +264,21 @@
     var p = C.price || {};
     return brl(p.value / 30).replace(',00', '');
   }
+  // "R$ 97/mês" ou "R$ 97 · pagamento único"
+  function priceText() {
+    var p = C.price || {};
+    return (p.label || 'R$ 97') + (p.period ? p.period : (p.periodLong ? ' · ' + p.periodLong : ''));
+  }
+  function stackTotal() {
+    return (C.valueStack || []).reduce(function (s, i) { return s + (Number(i.value) || 0); }, 0);
+  }
+  function brl0(v) { return 'R$ ' + Number(v).toLocaleString('pt-BR', { maximumFractionDigits: 0 }); }
 
   window.OFF = {
     C: C, sid: sid, state: state, sb: sb, track: track, esc: esc, firstName: firstName,
     delay: delay, toast: toast, reveal: reveal, countdown: countdown, goCheckout: goCheckout,
     checkoutUrl: checkoutUrl, withUtm: withUtm, getUtm: getUtm, windowClosed: windowClosed,
-    bindConfig: bindConfig, perDay: perDay, brl: brl, reduceMotion: reduceMotion, uuid: uuid
+    bindConfig: bindConfig, perDay: perDay, brl: brl, brl0: brl0, priceText: priceText, stackTotal: stackTotal, reduceMotion: reduceMotion, uuid: uuid
   };
 
   captureUtm();

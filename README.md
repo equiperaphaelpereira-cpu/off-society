@@ -4,9 +4,9 @@ Funil de 3 etapas para a Off Society (Naio Rezende · Protocolo Cascata):
 
 | Etapa | Página | O que faz |
 |---|---|---|
-| 1 | `index.html` | **Diagnóstico Cascata** — quiz de 9 perguntas, 3 telas educativas com dados reais (Fed de NY, liquidações de out/2025), captura de nome/WhatsApp/e-mail e resultado com o Índice de Combustível (0–100) e as armadilhas detectadas. |
+| 1 | `index.html` | **Diagnóstico Cascata** — quiz de 9 perguntas, 3 telas educativas com dados reais (Fed de NY, liquidações de out/2025), captura de nome/WhatsApp/e-mail e resultado com o Índice de Risco (0–100) e as armadilhas detectadas. |
 | 2 | `chat.html` | **Conversa com o Naio** — chat estilo WhatsApp, personalizado com as respostas do quiz: falas do Naio (áudio ou texto), vídeo "Protocolo Cascata em 30s", cards das 4 etapas, oferta, preço, garantia e menu de objeções. |
-| 3 | `oferta.html` | **Página final antes do checkout** — hero, vídeo, manifesto, dados, Armadilha do Stop Óbvio, protocolo, história do Naio, entregáveis, Sala Off, calculadora de blindagem, níveis, código, preço, garantia, FAQ. |
+| 3 | `oferta.html` | **Página final antes do checkout** — hero, vídeo, manifesto, dados, Armadilha da Maioria, protocolo, história do Naio, entregáveis, Meet Fechado, calculadora de segurança, níveis, código, preço, garantia, FAQ. |
 
 Site 100% estático (HTML/CSS/JS puro, sem build). Funciona em Vercel, Netlify, GitHub Pages ou qualquer hospedagem.
 
@@ -29,7 +29,7 @@ Tudo em **`assets/js/config.js`**:
 - `price.period` — **R$ 97 é mensal ou pagamento único?** Hoje está `/mês`. Se for único: `period: ''`, `periodLong: 'pagamento único'`, `accessNote: '12 meses de acesso'`, `showPerDay: false`.
 - `hasOtherRevenue` — deixe `false` só se **não** houver afiliação com corretora/exchange, patrocínio ou upsell. Com `true`, o funil troca o argumento de preço (seção 4.8 do documento mestre).
 - `entryWindow.closesAt` — data real de fechamento da janela. Liga a contagem regressiva no chat e na oferta e, depois da data, troca os botões por "lista de espera" (`waitlistUrl`).
-- `salaOff.time` — horário da Sala Off.
+- `salaOff.time` — horário do Meet Fechado (a chave mantém o nome `salaOff`).
 - `pixel.meta` — ID do Pixel. Eventos: `PageView`, `QuizStart`, `QuizComplete`, `Lead`, `ChatStart`, `ChatComplete`, `ViewContent`, `InitiateCheckout` (também vão para `dataLayer` com prefixo `off_`).
 - `videos.vsl` / `videos.salaOff` — opcionais (YouTube, Vimeo ou .mp4). Sem VSL, a página final mostra a animação do Protocolo Cascata.
 - `links.instagram`, `links.privacy`, `links.terms`.
@@ -60,11 +60,11 @@ from leads order by created_at desc;
 
 ## Pendências do documento mestre que afetam o funil
 
-- [ ] Confirmar com o Naio que ele opera por zonas de stop/liquidez (o mecanismo depende disso — seção 1.5)
-- [ ] Mensal x pagamento único; afiliação/upsell; horário da Sala Off; data da janela
+- [ ] Confirmar com o Naio que ele opera por zonas de proteção da maioria (o mecanismo depende disso — seção 1.5)
+- [ ] Mensal x pagamento único; afiliação/upsell; horário do Meet Fechado; data da janela
 - [ ] Valor exato e período do resultado atual + comprovação (hoje o funil usa "múltiplos seis dígitos por mês" sempre acompanhado da frase de contexto)
 - [ ] Critérios numéricos dos níveis Off Micro / Off Escala (hoje descritos sem número)
-- [ ] Validação da Sala Off, do Código e dos textos com advogado de mercado de capitais
+- [ ] Validação do Meet Fechado, do Código e dos textos com advogado de mercado de capitais
 - [ ] Política de privacidade (LGPD) — o quiz coleta nome, WhatsApp e e-mail
 
 ## Estrutura

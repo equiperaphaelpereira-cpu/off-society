@@ -49,7 +49,7 @@ for (const [id, a] of Object.entries(AUDIOS)) {
 > ${a.text}
 
 `;
-  if (id === 'a6') md += `> ⚠️ Só grave este se **não** houver afiliação com corretora/exchange, patrocínio ou produto mais caro planejado (seção 1.1 do documento mestre). Se houver, o chat pula esta fala (\`hasOtherRevenue: true\` no config).\n\n`;
+  if (id === 'a8') md += `> ⚠️ Só grave este se **não** houver afiliação com corretora/exchange, patrocínio ou produto mais caro planejado (seção 1.1 do documento mestre). Se houver, o chat pula esta fala (\`hasOtherRevenue: true\` no config).\n\n`;
   if (id === 'a3') md += `> ⚠️ Quando houver valor e período comprovados, vale trocar "múltiplos seis dígitos" pelo número concreto (seção 6.2), mantendo a frase de contexto logo depois.\n\n`;
 }
 mkdirSync(join(root, 'docs'), { recursive: true });

@@ -85,12 +85,12 @@
   });
 
   var CAPS = [
-    { t0: 0, n: '', h: 'Protocolo Cascata', d: 'Simulação educacional de como uma cascata de stops se forma, e de como operar do outro lado dela.' },
-    { t0: 6, n: '01', h: 'Combustível', d: 'A maioria coloca o stop logo abaixo do fundo e perto do número redondo. Somado à alavancagem, isso vira uma zona de liquidez.' },
-    { t0: 12, n: '02', h: 'Gatilho', d: 'Uma notícia ou a abertura de uma sessão empurra o preço até a zona.' },
-    { t0: 16, n: '03', h: 'Cascata', d: 'Cada stop executado empurra o preço até os próximos. Quando o combustível acaba, o movimento perde força: é a varredura.' },
-    { t0: 23, n: '04', h: 'Blindagem', d: 'Entrada só depois da reação. Stop fora da zona óbvia e alavancagem calculada para a liquidação ficar além da próxima zona.' },
-    { t0: 30, n: '', h: 'Todo stop óbvio vira combustível.', d: 'Simulação educacional com dados ilustrativos. Não é recomendação de investimento.' }
+    { t0: 0, n: '', h: 'O efeito dominó', d: 'Simulação de 30 segundos: o que acontece quando todo mundo tenta sair ao mesmo tempo.' },
+    { t0: 6, n: '01', h: 'Combustível', d: 'Cada pontinho é uma pessoa. Quase todo mundo entrou no mesmo lugar, como peças de dominó enfileiradas.' },
+    { t0: 12, n: '02', h: 'Gatilho', d: 'Uma notícia dá o empurrão, e o preço começa a cair na direção da fileira.' },
+    { t0: 16, n: '03', h: 'Cascata', d: 'Uma peça derruba a outra: cada pessoa que sai empurra o preço mais pra baixo. Quando as peças acabam, a queda para.' },
+    { t0: 23, n: '04', h: 'Blindagem', d: 'O Naio entra só depois que as peças caíram, de capacete: o limite de perda é decidido antes, longe da multidão.' },
+    { t0: 30, n: '', h: 'Quem fica no meio da fileira cai junto.', d: 'Simulação educacional com dados ilustrativos. Não é recomendação de investimento.' }
   ];
 
   function ease(x) { return x < 0 ? 0 : x > 1 ? 1 : 1 - Math.pow(1 - x, 3); }
@@ -153,8 +153,8 @@
       '<div class="cd-screen">' +
         '<canvas aria-hidden="true"></canvas>' +
         '<div class="cd-hud"><span class="cd-tag">Simulação</span><span class="cd-count"></span></div>' +
-        '<div class="cd-end"><h5>Todo stop óbvio<br>vira <span>combustível.</span></h5><button type="button" data-replay>Assistir de novo</button></div>' +
-        '<button class="cd-cover" type="button" aria-label="Assistir: Protocolo Cascata em 30 segundos"><span class="play-btn">' + ICON_PL + '</span><b>Protocolo Cascata em 30 segundos</b><span class="meta">4 etapas · simulação</span></button>' +
+        '<div class="cd-end"><h5>Quem fica no meio<br>da fileira <span>cai junto.</span></h5><button type="button" data-replay>Assistir de novo</button></div>' +
+        '<button class="cd-cover" type="button" aria-label="Assistir: o efeito dominó em 30 segundos"><span class="play-btn">' + ICON_PL + '</span><b>O efeito dominó em 30 segundos</b><span class="meta">simulação · sem precisar entender de gráfico</span></button>' +
       '</div>' +
       '<div class="cd-bar"><button class="cd-pp" type="button" aria-label="Reproduzir ou pausar">' + ICON_PL + ICON_PA + '</button>' +
         '<div class="cd-cap" aria-live="polite"><span class="n"></span><div><strong></strong><p></p></div></div></div>' +
@@ -227,13 +227,13 @@
         ctx.setLineDash([]);
         // rótulos
         if (tt < 23 || tt > 29.8) {
-          label(L + 6, zy2 + fs * 1.3, 'ZONA DE COMBUSTÍVEL · stops + liquidações estimadas', 'rgba(185,188,244,' + za + ')', fs * 0.9, 'left');
+          label(L + 6, zy2 + fs * 1.3, 'ONDE A MULTIDÃO ESTÁ · cada ponto é uma pessoa', 'rgba(185,188,244,' + za + ')', fs * 0.9, 'left');
         }
         // fundo óbvio e número redondo
         var la = ease((tt - 7.2) / 0.8) * (tt > 23 ? 0.5 : 1);
         if (la > 0) {
           hline(y(SWING), 'rgba(255,255,255,' + (0.45 * la) + ')', [2, 3]);
-          label(L + cw - 6, y(SWING) - fs * 0.9, 'fundo óbvio', 'rgba(255,255,255,' + (0.7 * la) + ')', fs * 0.88, 'right');
+          label(L + cw - 6, y(SWING) - fs * 0.9, 'onde todo mundo olha', 'rgba(255,255,255,' + (0.7 * la) + ')', fs * 0.88, 'right');
           hline(y(ROUND), 'rgba(185,188,244,' + (0.5 * la) + ')', [6, 4]);
           label(L + cw - 6, y(ROUND) + fs * 0.95, '60.000 · número redondo', 'rgba(185,188,244,' + (0.85 * la) + ')', fs * 0.88, 'right');
         }
@@ -290,7 +290,7 @@
           }
         }
       });
-      countEl.textContent = 'ordens disparadas · ' + (countFired * 31).toLocaleString('pt-BR');
+      countEl.textContent = 'peças caindo · ' + (countFired * 31).toLocaleString('pt-BR');
       countEl.classList.toggle('on', tt > 16 && tt < 30);
 
       // próxima zona (blindagem)
@@ -301,7 +301,7 @@
         ctx.setLineDash([3, 4]); ctx.strokeStyle = 'rgba(185,188,244,' + (0.35 * na) + ')';
         ctx.beginPath(); ctx.moveTo(L, y(NEXT.top)); ctx.lineTo(L + cw, y(NEXT.top)); ctx.moveTo(L, y(NEXT.bot)); ctx.lineTo(L + cw, y(NEXT.bot)); ctx.stroke();
         ctx.setLineDash([]);
-        label(L + 6, (y(NEXT.top) + y(NEXT.bot)) / 2, 'próxima zona', 'rgba(185,188,244,' + (0.8 * na) + ')', fs * 0.85, 'left');
+        label(L + 6, (y(NEXT.top) + y(NEXT.bot)) / 2, 'próxima multidão', 'rgba(185,188,244,' + (0.8 * na) + ')', fs * 0.85, 'left');
       }
 
       // velas
@@ -338,7 +338,7 @@
           ctx.strokeStyle = 'rgba(185,188,244,' + (1 - pulse / 1.2) * ga + ')';
           ctx.beginPath(); ctx.arc(nx, Tp + 6, 6 + pulse * 14, 0, Math.PI * 2); ctx.stroke();
         }
-        pill(nx, Tp + 6, 'NOTÍCIA · CPI EUA', ga * fade, fs * 0.9, true);
+        pill(nx, Tp + 6, 'O EMPURRÃO · uma notícia', ga * fade, fs * 0.9, true);
       }
 
       // varredura
@@ -347,7 +347,7 @@
         var vx = xi(43), vy = y(CANDLES[43].l);
         ctx.strokeStyle = 'rgba(255,255,255,' + va + ')'; ctx.lineWidth = 1.2;
         ctx.beginPath(); ctx.arc(vx, vy, 8, 0, Math.PI * 2); ctx.stroke();
-        pill(vx, vy + fs * 2.6, 'VARREDURA · perdeu força', va, fs * 0.88, false);
+        pill(vx, vy + fs * 2.6, 'AS PEÇAS PARARAM DE CAIR', va, fs * 0.88, false);
       }
 
       // blindagem: entrada, stop e liquidação
@@ -360,14 +360,14 @@
         ctx.beginPath(); ctx.arc(ex, ey, 4.5 * ea, 0, Math.PI * 2); ctx.fill();
         ctx.strokeStyle = 'rgba(255,255,255,' + (0.5 * ea) + ')';
         ctx.beginPath(); ctx.arc(ex, ey, 9 * ea, 0, Math.PI * 2); ctx.stroke();
-        pill(ex, ey - fs * 2.4, 'ENTRADA · depois da reação', ea, fs * 0.88, false);
+        pill(ex, ey - fs * 2.4, 'NAIO ENTRA · depois da queda', ea, fs * 0.88, false);
       }
       var sa = ease((tt - 23.7) / 0.6);
       if (sa > 0) {
         var sy2 = y(STOP), x0 = xi(ENTRY_I);
         ctx.strokeStyle = 'rgba(185,188,244,' + sa + ')'; ctx.lineWidth = 1.5;
         ctx.beginPath(); ctx.moveTo(x0, sy2); ctx.lineTo(x0 + (L + cw - x0) * sa, sy2); ctx.stroke();
-        label(x0 + 8, sy2 - fs * 0.9, 'STOP · fora da zona óbvia', 'rgba(185,188,244,' + sa + ')', fs * 0.88, 'left');
+        label(x0 + 8, sy2 - fs * 0.9, 'CAPACETE · longe da multidão', 'rgba(185,188,244,' + sa + ')', fs * 0.88, 'left');
       }
       var lqa = ease((tt - 25.0) / 0.6);
       if (lqa > 0) {
@@ -375,7 +375,7 @@
         ctx.setLineDash([2, 3]); ctx.strokeStyle = 'rgba(255,255,255,' + (0.8 * lqa) + ')'; ctx.lineWidth = 1.2;
         ctx.beginPath(); ctx.moveTo(x1, ly); ctx.lineTo(x1 + (L + cw - x1) * lqa, ly); ctx.stroke(); ctx.setLineDash([]);
         shield(x1 + 10, ly, fs * 1.1, lqa);
-        label(x1 + 10 + fs * 1.3, ly, 'LIQUIDAÇÃO · além da próxima zona', 'rgba(255,255,255,' + lqa + ')', fs * 0.88, 'left');
+        label(x1 + 10 + fs * 1.3, ly, 'LIMITE DE PERDA · decidido antes', 'rgba(255,255,255,' + lqa + ')', fs * 0.88, 'left');
       }
 
       // escurece no final

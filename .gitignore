@@ -1,0 +1,5 @@
+# fotos originais em alta (as versões otimizadas estão em assets/img)
+fotos naio rezende/
+.DS_Store
+node_modules/
+tools/.tmp/

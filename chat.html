@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="pt-BR" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <title>Conversa com o Naio · Off Society</title>
+  <meta name="description" content="Áudios do Naio Rezende sobre o seu Diagnóstico Cascata.">
+  <meta name="theme-color" content="#07081E">
+  <meta name="robots" content="noindex">
+  <meta property="og:title" content="Conversa com o Naio · Off Society">
+  <meta property="og:image" content="assets/img/og-image.jpg">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/chat.css">
+  <link rel="preload" as="image" href="assets/img/naio-avatar.webp">
+  <script>document.documentElement.classList.replace('no-js', 'js');</script>
+</head>
+<body class="p-chat">
+  <div class="c-bg" aria-hidden="true"><div class="c-word dx">OFF</div></div>
+
+  <div class="c-layout">
+    <aside class="c-side">
+      <a class="logo" href="index.html" aria-label="Off Society">
+        <svg class="logo-mark" viewBox="0 0 64 40" aria-hidden="true"><path d="M7 9 C 25 8, 41 17, 57 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-dasharray="2.6 3.2"/><circle cx="7" cy="9" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="33" cy="15.6" r="3.6" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="57" cy="32" r="4.6" fill="currentColor"/></svg>
+        <span class="logo-word">OFF<sup>SOCIETY</sup></span>
+      </a>
+
+      <div class="c-side-mid">
+        <span class="phase">Etapa 2 de 3</span>
+        <h1 class="hx c-side-h">Conversa com <br>o <span class="mb anim" data-t="Naio">Naio</span></h1>
+        <p class="lead" id="sideLead">Áudios curtos, um vídeo de 30 segundos e as respostas pras dúvidas mais comuns. Leva uns 5 minutos.</p>
+
+        <ol class="c-chapters" id="chapters">
+          <li data-ch="1"><span class="idx">01</span><span><small>Capítulo</small><b>Seu diagnóstico</b></span></li>
+          <li data-ch="2"><span class="idx">02</span><span><small>Capítulo</small><b>A história do Naio</b></span></li>
+          <li data-ch="3"><span class="idx">03</span><span><small>Capítulo</small><b>Protocolo Cascata</b></span></li>
+          <li data-ch="4"><span class="idx">04</span><span><small>Capítulo</small><b>Off Society</b></span></li>
+        </ol>
+      </div>
+
+      <div class="c-side-foot">
+        <figure class="c-side-card">
+          <img src="assets/img/naio-profile-blue.webp" alt="" loading="lazy" width="1100" height="1375">
+          <figcaption><b>Naio Rezende</b><span>Trader · fundador da Off Society</span></figcaption>
+        </figure>
+        <a class="ulink" href="oferta.html" data-keep-utm>Pular direto para a Off Society</a>
+      </div>
+    </aside>
+
+    <section class="phone" aria-label="Conversa com Naio Rezende">
+      <header class="ph-head">
+        <a class="ph-back" href="index.html" aria-label="Voltar ao diagnóstico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg></a>
+        <div class="ph-av"><img src="assets/img/naio-avatar.webp" alt="" width="40" height="40"><i></i></div>
+        <div class="ph-id">
+          <b>Naio Rezende <svg class="vf" viewBox="0 0 24 24" aria-label="verificado"><path fill="#5B6BFF" d="M12 1.5l2.4 1.8 3-.1.9 2.9 2.4 1.8-.9 2.9.9 2.9-2.4 1.8-.9 2.9-3-.1L12 22.5l-2.4-1.8-3 .1-.9-2.9-2.4-1.8.9-2.9-.9-2.9 2.4-1.8.9-2.9 3 .1z"/><path d="M8 12.2l2.7 2.7L16.2 9.4" fill="none" stroke="#fff" stroke-width="2"/></svg></b>
+          <span id="status" class="st">online</span>
+        </div>
+        <span class="ph-brand logo-word">OFF<sup>SOCIETY</sup></span>
+      </header>
+
+      <div class="ph-offer" id="offerPill" hidden>
+        <a href="oferta.html" data-keep-utm id="offerPillLink"><span class="dot-live"></span>Ver a Off Society <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+
+      <div class="ph-body" id="thread" role="log" aria-live="polite" aria-relevant="additions">
+        <div class="ph-day"><span>Hoje</span></div>
+        <p class="ph-note" id="phNote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 118 0v3"/></svg>Áudios e mensagens gravados pelo Naio para quem fez o Diagnóstico Cascata.</p>
+      </div>
+
+      <footer class="ph-foot">
+        <div class="ph-chips" id="chips" role="group" aria-label="Respostas"></div>
+        <form class="ph-input" id="inputForm" hidden autocomplete="off">
+          <input id="textInput" type="text" maxlength="400" aria-label="Sua resposta">
+          <button type="submit" class="ph-send" aria-label="Enviar"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.4 20.4L21 12 3.4 3.6 3.4 10l12.6 2-12.6 2z"/></svg></button>
+        </form>
+        <div class="ph-fake" id="fakeInput" aria-hidden="true">
+          <span>Mensagem</span>
+          <i><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 003-3V6a3 3 0 10-6 0v6a3 3 0 003 3zm5-3a5 5 0 01-10 0H5a7 7 0 006 6.92V21h2v-2.08A7 7 0 0019 12h-2z"/></svg></i>
+        </div>
+      </footer>
+    </section>
+  </div>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/core.js"></script>
+  <script src="assets/js/audios.js"></script>
+  <script src="assets/js/cascade.js"></script>
+  <script src="assets/js/media.js"></script>
+  <script src="assets/js/chat.js"></script>
+</body>
+</html>

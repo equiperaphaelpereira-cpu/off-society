@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="pt-BR" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Diagnóstico Cascata · Off Society</title>
+  <meta name="description" content="Responda 9 perguntas e descubra se você opera do lado que é liquidado primeiro. Diagnóstico gratuito criado por Naio Rezende.">
+  <meta name="theme-color" content="#040404">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Você opera do lado que é liquidado primeiro?">
+  <meta property="og:description" content="Diagnóstico Cascata · 2 minutos · por Naio Rezende">
+  <meta property="og:image" content="assets/img/og-image.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/quiz.css">
+  <link rel="preload" as="image" href="assets/img/naio-portrait-blue.webp">
+  <script>document.documentElement.classList.replace('no-js', 'js');</script>
+</head>
+<body class="p-quiz">
+  <div class="q-bg" aria-hidden="true">
+    <div class="q-glow"></div>
+    <div class="q-word dx">OFF</div>
+    <div class="q-grain"></div>
+  </div>
+
+  <header class="q-bar">
+    <a class="logo" href="index.html" aria-label="Off Society">
+      <svg class="logo-mark" viewBox="0 0 64 40" aria-hidden="true"><path d="M7 9 C 25 8, 41 17, 57 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-dasharray="2.6 3.2"/><circle cx="7" cy="9" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="33" cy="15.6" r="3.6" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="57" cy="32" r="4.6" fill="currentColor"/></svg>
+      <span class="logo-word">OFF<sup>SOCIETY</sup></span>
+    </a>
+    <div class="q-progress" id="progress" hidden>
+      <div class="q-progress-track"><i id="progressFill"></i></div>
+      <span class="meta tnum" id="progressLabel">01 / 09</span>
+    </div>
+    <span class="meta q-bar-meta" id="barMeta">Diagnóstico Cascata</span>
+  </header>
+
+  <main class="q-stage" id="stage">
+    <!-- Tela inicial (renderizada no HTML para carregar instantaneamente) -->
+    <section class="screen s-intro is-active" id="intro">
+      <div class="intro-grid wrap">
+        <div class="intro-copy">
+          <span class="pill-live" data-reveal><i class="dot-live"></i> Diagnóstico gratuito · 2 minutos</span>
+          <h1 class="hx intro-h" data-reveal style="--d:.08s">
+            Você opera do lado que <span class="soft">é liquidado </span><span class="mb anim" data-t="primeiro?">primeiro?</span>
+          </h1>
+          <p class="lead intro-p" data-reveal style="--d:.16s">
+            Em 10 e 11 de outubro de 2025, mais de <b>1,6 milhão de traders</b> foram liquidados em 24 horas.
+            Responda 9 perguntas e veja o quanto a sua operação se parece com a deles.
+          </p>
+          <div class="intro-cta" data-reveal style="--d:.24s">
+            <button class="btn btn-light btn-xl" id="startBtn" type="button">
+              Começar o diagnóstico
+              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </button>
+            <div class="intro-by">
+              <img src="assets/img/naio-avatar.webp" alt="" width="36" height="36">
+              <span class="meta">Criado por<br><b>Naio Rezende</b></span>
+            </div>
+          </div>
+        </div>
+
+        <figure class="intro-card" data-reveal style="--d:.2s">
+          <img src="assets/img/naio-portrait-blue.webp" alt="Naio Rezende" width="1100" height="1375">
+          <figcaption>
+            <span class="meta">Naio Rezende</span>
+            <b>Perdeu R$ 20 mil sozinho no mercado. Hoje ensina a não virar combustível.</b>
+          </figcaption>
+        </figure>
+      </div>
+
+      <div class="wrap">
+        <div class="intro-stats sheet" data-reveal style="--d:.3s">
+          <div class="is-head">
+            <p class="hx h4">O prejuízo da maioria <span class="acc">tem endereço.</span></p>
+            <span class="meta">Dados públicos · fontes no rodapé</span>
+          </div>
+          <div class="stats">
+            <div class="stat">
+              <div class="num tnum">1,6<small>mi</small></div>
+              <span class="lbl">traders liquidados</span>
+              <span class="txt">em 24 horas, entre 10 e 11 de outubro de 2025.</span>
+            </div>
+            <div class="stat tall">
+              <div class="num tnum">~10<small>%</small></div>
+              <span class="lbl">dos stops no “00”</span>
+              <span class="txt">ordens em preços terminados em 00, segundo estudo do Fed de Nova York.</span>
+            </div>
+            <div class="stat grad">
+              <div class="num tnum">74–89<small>%</small></div>
+              <span class="lbl">das contas perdem</span>
+              <span class="txt">contas de varejo perdendo dinheiro em CFDs, segundo reguladores europeus.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="q-foot wrap">
+    <p class="risk">
+      Conteúdo educacional. Operações com criptoativos e moedas envolvem alto risco de perda do capital, ampliado pelo uso de alavancagem.
+      Fontes: Coinglass/Livecoins (out/2025) · Osler, Fed de Nova York, Staff Report 150 e Journal of Finance (2003) · ESMA, restrições a CFDs.
+    </p>
+  </footer>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/core.js"></script>
+  <script src="assets/js/audios.js"></script>
+  <script src="assets/js/quiz.js"></script>
+</body>
+</html>

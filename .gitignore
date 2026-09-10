@@ -3,3 +3,4 @@ fotos naio rezende/
 .DS_Store
 node_modules/
 tools/.tmp/
+.vercel/

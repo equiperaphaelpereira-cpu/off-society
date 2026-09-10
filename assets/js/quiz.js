@@ -491,5 +491,8 @@
     else if (preview === 'captura') renderCapture(r0);
     else if (preview === 'insight') { qi = 3; renderInsight('crowd'); }
     else if (preview === 'pergunta') renderQuestion(3);
+  } else {
+    // Inicia o quiz direto, sem tela intro
+    start();
   }
 })();

@@ -1,7 +1,7 @@
 /* ==========================================================================
    ETAPA 1 · QUIZ — Diagnóstico gratuito (público leigo)
-   8 perguntas simples → 3 telas educativas → análise → captura → resultado
-   Resultado: quantos dos 5 hábitos de quem perde dinheiro a pessoa tem.
+   8 perguntas simples → 3 telas educativas → análise → captura → chat
+   A avaliação (nível de preparo + o que falta) é entregue pelo Naio no chat.
    ========================================================================== */
 (function () {
   'use strict';
@@ -364,12 +364,12 @@
       '<div class="cap"><div class="cap-card sheet">' +
         '<span class="cap-badge">' + I.lock + 'Resultado pronto</span>' +
         '<h2 class="hx cap-h" tabindex="-1" data-focus>Seu nível de preparo <span class="acc">está calculado.</span></h2>' +
-        '<p class="cap-p">Deixe seu contato para ver o quanto você está preparado para entrar no mercado e receber a mensagem do Naio sobre o seu resultado.</p>' +
+        '<p class="cap-p">Deixe seu contato: o Naio vai te passar a sua avaliação agora, numa conversa rápida e sem palavra difícil.</p>' +
         '<form class="cap-form" novalidate>' +
           '<label class="field" data-f="name"><span>Primeiro nome</span><input name="name" autocomplete="given-name" placeholder="Como você quer ser chamado" value="' + esc(s.name || '') + '" required><em class="err-msg">Digite seu nome.</em></label>' +
           '<label class="field" data-f="whatsapp"><span>WhatsApp com DDD' + (lc.requireWhatsapp === false ? ' (opcional)' : '') + '</span><input name="whatsapp" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="(11) 91234-5678" value="' + esc(s.whatsapp || '') + '"><em class="err-msg">Confira o número com DDD.</em></label>' +
           '<label class="field" data-f="email"><span>E-mail' + (lc.emailRequired ? '' : ' (opcional)') + '</span><input name="email" type="email" inputmode="email" autocomplete="email" placeholder="voce@email.com" value="' + esc(s.email || '') + '"><em class="err-msg">Confira o e-mail.</em></label>' +
-          '<button class="btn btn-dark btn-xl btn-block" type="submit">Ver meu resultado ' + I.next + '</button>' +
+          '<button class="btn btn-dark btn-xl btn-block" type="submit">Receber minha avaliação ' + I.next + '</button>' +
           '<p class="cap-legal">Seus dados ficam protegidos com a Off Society. Nada de spam, e você pode solicitar a exclusão a qualquer momento.</p>' +
         '</form>' +
         '<div class="cap-blur" aria-hidden="true">' +
@@ -396,133 +396,11 @@
       O.sb.lead({ stage: 'lead_captured', name: name, whatsapp: wa ? '+55' + wa : '', email: email, answers: answers, score: r.vuln, profile: r.name });
       O.sb.event('lead_captured');
       O.track('Lead', { content_name: 'Diagnóstico', profile: r.key });
-      renderResult(r);
+      // a avaliação é entregue pelo Naio no chat
+      O.state.set({ score: r.prep, profile: { key: r.key, name: r.name, level: r.level },
+        gaps: r.pieces.map(function (x) { return { t: x.t, s: x.pts === 0 ? 'falta' : 'incompleta' }; }) });
+      setTimeout(function () { location.href = O.withUtm('chat.html'); }, 180);
     });
-  }
-
-  /* ---------------------------------------------------------------- resultado: nível de preparo */
-  // Dados reais para "quanto o dinheiro parado perde" (nunca promessa de ganho operando):
-  // IPCA/IBGE acumulado 2020–2024 = 33,47% · dólar PTAX/BCB: 4,03 (31/12/2019) → 6,19 (30/12/2024)
-  var IPCA_5A = 1.3347, USD_2019 = 4.03, USD_2024 = 6.19, INFL_ANO = Math.pow(IPCA_5A, 1 / 5) - 1;
-
-  function renderResult(r) {
-    phase('result', 'Seu resultado');
-    var name = O.firstName(O.state.get().name);
-    var w = C.entryWindow || {};
-    var doorTxt = 'A Off Society abre em janelas. Fora delas, só lista de espera.';
-    if (w.closesAt && !O.windowClosed()) {
-      var d = new Date(w.closesAt);
-      doorTxt = 'A janela atual fecha em ' + d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' }) + '. Depois, só lista de espera.';
-    }
-
-    var el = swap(
-      '<div class="res orbit-res">' +
-        '<div class="orbit-hero" data-reveal>' +
-          '<div class="orbit-badge-pill"><span class="orbit-pulse-dot"></span>' +
-            '<span>SEU RESULTADO' + (name ? ' · ' + esc(name).toUpperCase() : '') + ' · ' + esc(r.level).toUpperCase() + '</span></div>' +
-          '<h1 class="hx res-h" tabindex="-1" data-focus>' + r.h + '</h1>' +
-          '<p class="res-p">' + r.p + '</p>' +
-        '</div>' +
-
-        '<div class="orbit-laptop-grid" data-reveal style="--d:.12s">' +
-          '<div class="orbit-metric-box alert-box">' +
-            '<div class="orbit-metric-head"><span class="orbit-status-label">Seu nível de preparo</span><span class="orbit-dot-alert"></span></div>' +
-            '<div class="orbit-num-wrap"><b class="orbit-huge-num tnum"><span id="vulnCounter">0</span><small class="pct">%</small></b></div>' +
-            '<div class="orbit-metric-title">Preparado para diversificar</div>' +
-            '<p class="orbit-metric-desc">Pelas suas respostas, ainda faltam método, proteção e alguém experiente do lado.</p>' +
-          '</div>' +
-          '<div class="orbit-metric-box neutral-box">' +
-            '<div class="orbit-metric-head"><span class="orbit-status-label">Inflação 2020–2024</span><span class="orbit-tag-micro">IBGE</span></div>' +
-            '<div class="orbit-num-wrap"><b class="orbit-huge-num tnum">33,5<small class="pct">%</small></b></div>' +
-            '<div class="orbit-metric-title">Alta nos preços</div>' +
-            '<p class="orbit-metric-desc">O que custava R$ 100 passou a custar R$ 133.</p>' +
-          '</div>' +
-          '<div class="orbit-metric-box neutral-box">' +
-            '<div class="orbit-metric-head"><span class="orbit-status-label">Real frente ao dólar</span><span class="orbit-tag-micro">Banco Central</span></div>' +
-            '<div class="orbit-num-wrap"><b class="orbit-huge-num tnum">−35<small class="pct">%</small></b></div>' +
-            '<div class="orbit-metric-title">Perda de valor</div>' +
-            '<p class="orbit-metric-desc">O dólar foi de R$ 4,03 para R$ 6,19, do fim de 2019 ao fim de 2024.</p>' +
-          '</div>' +
-        '</div>' +
-
-        '<div class="sheet lossc" data-reveal style="--d:.2s">' +
-          '<div class="lossc-head">' +
-            '<span class="orbit-sheet-kicker">QUANTO O SEU DINHEIRO PARADO PERDEU</span>' +
-            '<h2 class="hx h3">Coloque um valor e veja <span class="acc">na prática.</span></h2>' +
-          '</div>' +
-          '<label class="lossc-in"><span>Quanto você tem guardado (ou ganha por mês)</span>' +
-            '<b class="tnum" id="lcVal">R$ 5.000</b>' +
-            '<input type="range" id="lcRange" min="500" max="100000" step="500" value="5000" aria-label="Valor"></label>' +
-          '<div class="lossc-out">' +
-            '<div><small>Para comprar hoje o que isso comprava em 2020</small><b class="tnum" id="lcInfl">—</b></div>' +
-            '<div class="hl"><small>Se estivesse em dólar desde o fim de 2019</small><b class="tnum" id="lcUsd">—</b></div>' +
-            '<div class="mk"><small>Um único dia de mercado (movimento de 2%)</small><b class="tnum"><span class="up" id="lcUp">—</span><span class="dn" id="lcDn">—</span></b><em>O mesmo movimento que pode somar também pode tirar. Por isso você começa no modo treino.</em></div>' +
-          '</div>' +
-          '<p class="lossc-note">IPCA/IBGE acumulado 2020–2024 e dólar PTAX/Banco Central. Valores aproximados. O dia de mercado é uma simulação: ganho e perda andam juntos e não há promessa de resultado. Resultado passado não garante resultado futuro.</p>' +
-        '</div>' +
-
-        '<div class="urg" data-reveal style="--d:.25s">' +
-          '<div class="urg-head"><span class="urg-kicker"><i></i>Por que resolver isso agora</span></div>' +
-          '<div class="urg-grid">' +
-            '<div class="urg-item"><b class="tnum" id="lcMonth">—</b><h3>Cada mês parado custa.</h3><p>É o que o seu dinheiro perde de poder de compra por mês, na média da inflação de 2020 a 2024.</p></div>' +
-            '<div class="urg-item"><b>1 renda</b><h3>Uma renda só é um risco só.</h3><p>Se ela parar, tudo para junto. Diversificar é ter mais de uma porta aberta.</p></div>' +
-            '<div class="urg-item"><b>Janela</b><h3>A porta abre poucas vezes.</h3><p>' + esc(doorTxt) + '</p></div>' +
-          '</div>' +
-        '</div>' +
-
-        '<div class="orbit-expert-box" data-reveal style="--d:.3s">' +
-          '<div class="orbit-expert-top">' +
-            '<div class="orbit-expert-avatar-wrap">' +
-              '<img src="assets/img/naio-avatar.webp" alt="Naio Rezende" class="orbit-avatar-img">' +
-              '<span class="orbit-live-badge"><i class="orbit-pulse-mini"></i> 1 nova</span>' +
-            '</div>' +
-            '<div class="orbit-expert-meta">' +
-              '<span class="orbit-expert-kicker">MENSAGEM DO NAIO</span>' +
-              '<h3 class="orbit-expert-title">Como começar a diversificar com segurança.</h3>' +
-              '<p class="orbit-expert-quote">Do zero, sem palavra difícil, começando no modo treino com dinheiro de mentira.</p>' +
-            '</div>' +
-          '</div>' +
-          '<div class="orbit-expert-action">' +
-            '<a class="btn btn-light btn-xl orbit-action-btn" href="' + O.withUtm('chat.html') + '" id="toChat">' +
-              '<span>Ver a mensagem do Naio</span>' +
-              '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>' +
-            '</a>' +
-            '<span class="orbit-action-micro">Mensagens protegidas · leva uns 5 minutos</span>' +
-          '</div>' +
-        '</div>' +
-      '</div>');
-
-    el.querySelector('#toChat').addEventListener('click', function () { O.sb.event('to_chat'); });
-
-    // calculadora do dinheiro parado
-    var range = el.querySelector('#lcRange');
-    function money(v) { return O.brl0(Math.round(v)); }
-    function calc() {
-      var v = +range.value;
-      el.querySelector('#lcVal').textContent = money(v);
-      el.querySelector('#lcInfl').textContent = money(v * IPCA_5A);
-      el.querySelector('#lcUsd').textContent = money(v / USD_2019 * USD_2024);
-      el.querySelector('#lcUp').textContent = '+' + money(v * 0.02);
-      el.querySelector('#lcDn').textContent = '−' + money(v * 0.02);
-      el.querySelector('#lcMonth').textContent = money(v * (Math.pow(1 + INFL_ANO, 1 / 12) - 1)) + '/mês';
-      range.style.setProperty('--p', ((v - range.min) / (range.max - range.min) * 100) + '%');
-    }
-    range.addEventListener('input', calc);
-    range.addEventListener('change', function () { O.sb.event('loss_calc', null, { v: +range.value }); });
-    calc();
-
-    // contagem do nível de preparo
-    var counterEl = el.querySelector('#vulnCounter');
-    var target = r.prep;
-    var duration = O.reduceMotion ? 200 : 1600;
-    var startT = performance.now();
-    function animateCount(now) {
-      var k = Math.min(1, (now - startT) / duration);
-      if (counterEl) counterEl.textContent = Math.round((1 - Math.pow(1 - k, 3)) * target);
-      if (k < 1) requestAnimationFrame(animateCount);
-      else if (counterEl) { counterEl.textContent = target; counterEl.classList.add('is-final'); }
-    }
-    requestAnimationFrame(animateCount);
   }
 
   /* ---------------------------------------------------------------- início */
@@ -553,8 +431,7 @@
   if (preview) {
     answers = { know: 'ouvi', why: 'renda', print: 'muito', entry: 'dica', fear: 'golpe', time: '30', learn: 'aovivo', capital: 'naosei' };
     var r0 = compute(answers);
-    if (preview === 'resultado') renderResult(r0);
-    else if (preview === 'captura') renderCapture(r0);
+    if (preview === 'captura') renderCapture(r0);
     else if (preview === 'insight') { qi = 3; renderInsight('crowd'); }
     else if (preview === 'pergunta') renderQuestion(3);
   } else {

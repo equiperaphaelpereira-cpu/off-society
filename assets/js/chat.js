@@ -412,6 +412,19 @@
       '</div></div>');
   }
 
+  // Avaliação do quiz entregue no chat: potencial x preparo de hoje + alerta curto
+  function evalCard() {
+    var pct = Math.max(0, Math.min(100, +S.score || 0));
+    var pot = 'Alto';
+    return card('<div class="card-w eval-c"><span class="meta">Sua avaliação' + (name ? ' · ' + O.esc(name) : '') + '</span>' +
+      '<div class="eval-duo">' +
+        '<div class="ok"><small>Potencial</small><b>' + pot + '</b></div>' +
+        '<div class="bad"><small>Preparo hoje</small><b class="tnum">' + pct + '<i>%</i></b></div>' +
+      '</div>' +
+      '<p class="eval-warn">Sem aprender do jeito certo, o mesmo perfil que pode ganhar <b>também pode perder muito dinheiro.</b></p>' +
+      '</div>');
+  }
+
   function ctaCard() {
     return card('<div class="card-w cta-c"><span class="meta">Último passo</span><h4>Off Society</h4>' +
       '<p>Tudo o que está incluso, as regras da sociedade e a sua entrada por ' + O.esc(PRICE) + ', com ' + G + ' dias de garantia.</p>' +
@@ -556,13 +569,16 @@
       await say('Fala, ' + name + ', Naio aqui!!');
     }
 
-    await say('Acabei de ver seu diagnóstico...');
+    await audio('a1');
     if (typeof S.score === 'number') {
-      await say('Você está só ' + S.score + '% preparado pra entrar no mercado hoje.');
-      await say('Com esse nível, você entraria do mesmo jeito que a maioria que perde dinheiro: sem método, sem proteção e sem ninguém do lado.');
+      await say('Acabei de receber o resultado do seu diagnóstico. Olha aqui:');
+      await evalCard();
+      await say('Pelo que eu vi das suas respostas, você tem o perfil de quem tem potencial pra fazer dinheiro com o mercado.');
+      await say('Mas precisa aprender do jeito certo. Senão, pode perder muito dinheiro também!');
+    } else {
+      await say('Acabei de ver seu diagnóstico...');
     }
     await say('A boa notícia: dá pra resolver isso antes de você colocar um centavo.');
-    await audio('a1');
     await say(entryLine());
 
     var reaction = await choices([{ l: 'Me conta mais', v: 'mais' }]);

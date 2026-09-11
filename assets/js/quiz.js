@@ -133,42 +133,50 @@
     }
   };
 
-  /* ---------------------------------------------------------------- resultado: 5 hábitos */
+  /* ---------------------------------------------------------------- resultado: nível de preparo */
+  // As 5 peças que separam quem entra preparado de quem perde. Quem nunca operou
+  // não tem método nem proteção, então o preparo fica baixo mesmo com respostas "certas".
   function compute(a) {
-    var habits = [
-      { t: 'Seguir dicas da internet',
-        s: (a.entry === 'dica' || a.entry === 'influencer') ? 'detected' : 'ok',
-        x: 'Na internet, quando alguém te dá uma dica, milhares de pessoas estão fazendo a mesma coisa. Quando todo mundo faz igual, todo mundo perde junto.' },
-      { t: 'Acreditar em print de lucro rápido',
-        s: a.print === 'muito' ? 'detected' : a.print === 'algumas' ? 'risk' : 'ok',
-        x: 'Print só mostra o dia bom. Quem toma decisão baseada no que os outros mostram acaba caindo em armadilhas e se frustrando.' },
-      { t: 'Tentar aprender na tentativa e erro',
-        s: (a.entry === 'sozinho' || a.know === 'tentei') ? 'detected' : 'ok',
-        x: 'Aprender sozinho custa caro. Foi assim que o Naio perdeu mais de R$ 20 mil no começo, por não ter a quem perguntar.' },
-      { t: 'Arriscar dinheiro que faz falta',
-        s: (a.capital === 'reserva' || a.capital === 'emprestimo') ? 'detected' : a.capital === 'naosei' ? 'risk' : 'ok',
-        x: 'Dinheiro para contas não se arrisca. O jeito certo é começar num ambiente de treino, sem colocar um centavo de verdade.' },
-      { t: 'Querer resultado pra ontem',
-        s: a.why === 'renda' ? ((a.time === '30' || a.time === '60') ? 'detected' : 'risk') : 'ok',
-        x: 'Quem tem pressa pula etapas importantes e acaba perdendo o que tem. O primeiro objetivo é sempre aprender, não ganhar.' }
+    var pieces = [
+      { tag: 'Peça 01', t: 'Entender como o mercado funciona',
+        pts: { nada: 0, ouvi: 4, tentei: 8, opero: 12 }[a.know] || 0,
+        why: 'Sem entender o básico, qualquer notícia ou print vira motivo para entrar no susto.',
+        fix: 'Curso do zero absoluto: o que é dólar, o que é bitcoin e como funciona uma corretora.' },
+      { tag: 'Peça 02', t: 'Um método com regras claras',
+        pts: a.know === 'opero' ? 4 : 0,
+        why: 'Sem regra, cada decisão é um chute. E chute no mercado costuma sair caro.',
+        fix: 'O Protocolo Cascata: 4 passos, sempre na mesma ordem, antes de qualquer operação.' },
+      { tag: 'Peça 03', t: 'Alguém experiente do seu lado',
+        pts: a.entry === 'alguem' ? 6 : 0,
+        why: (a.entry === 'dica' || a.entry === 'influencer')
+          ? 'Dica de amigo ou de influenciador não é acompanhamento. Quando o preço vira, você está sozinho.'
+          : 'Foi a peça que faltou para o Naio quando ele perdeu mais de R$ 20 mil.',
+        fix: 'Meet fechado ao vivo com o Naio, de segunda a sexta, com perguntas no final.' },
+      { tag: 'Peça 04', t: 'Treinar sem arriscar dinheiro',
+        pts: { pequeno: 8, naosei: 6 }[a.capital] || 0,
+        why: (a.capital === 'reserva' || a.capital === 'emprestimo')
+          ? 'Você pensa em começar com dinheiro que faz falta. É o jeito mais rápido de transformar um erro de iniciante em um problema de verdade.'
+          : 'Quem começa direto com dinheiro de verdade paga o aprendizado com o próprio bolso.',
+        fix: 'Modo treino: você opera com dinheiro de mentira até o seu diário mostrar que está pronto.' },
+      { tag: 'Peça 05', t: 'Saber quanto aceita perder',
+        pts: ({ aprender: 4, dolar: 4, render: 2 }[a.why] || 0) + (a.capital === 'pequeno' ? 2 : 0),
+        why: a.why === 'renda'
+          ? 'Quem entra pensando em renda rápida costuma arriscar mais do que pode.'
+          : 'Sem um limite definido antes de entrar, um único dia ruim apaga semanas de esforço.',
+        fix: 'Blindagem: o limite de perda é decidido antes de cada operação. Capacete antes da bicicleta.' }
     ];
-    var n = habits.filter(function (h) { return h.s === 'detected'; }).length;
-    var key = a.know === 'tentei' ? 'recomeco' : n >= 3 ? 'manada' : n >= 1 ? 'atencao' : 'comeco';
-    var level = n >= 3 ? 'Risco alto' : n >= 1 ? 'Risco moderado' : 'Risco baixo';
-    var h = n === 0
-      ? 'Você não tem nenhum dos 5 hábitos <span class="soft">de quem perde dinheiro.</span>'
-      : 'Você tem ' + n + ' dos 5 hábitos <span class="soft">de quem perde dinheiro no mercado.</span>';
-    var P = {
-      recomeco: { name: 'Recomeço',
-        p: 'Você já tentou antes e não deu certo. <b>Isso significa que você está repetindo os mesmos erros que fazem a maioria perder.</b> Se ninguém te mostrar o que está errado, vai continuar perdendo. O Naio já esteve exatamente onde você está agora.' },
-      manada: { name: 'Efeito Manada',
-        p: 'Segundo reguladores europeus, <b>de 74% a 89% das pessoas comuns perdem dinheiro</b> operando do jeito que você começaria. Pelas suas respostas, você cairia nas mesmas armadilhas que todo mundo. <b>Se não mudar agora, vai ser mais um número nessa estatística.</b>' },
-      atencao: { name: 'Zona de Atenção',
-        p: 'Você já evita parte dos erros, mas <b>' + (n === 1 ? 'um hábito ainda te coloca' : 'alguns hábitos ainda te colocam') + ' no mesmo caminho de quem perde tudo.</b> O problema é que você nem percebe. Se não corrigir isso antes de colocar dinheiro de verdade, o prejuízo vem.' },
-      comeco: { name: 'Começo Certo',
-        p: 'Você tem o instinto certo, mas <b>instinto sozinho não basta.</b> Sem método e sem alguém do lado, até quem pensa certo acaba cometendo os mesmos erros. O Naio perdeu R$ 20 mil exatamente assim.' }
-    }[key];
-    return { score: n, n: n, key: key, level: level, name: P.name, h: h, p: P.p, traps: habits };
+    var raw = pieces.reduce(function (s, x) { return s + x.pts; }, 0);
+    var prep = Math.max(7, Math.min(38, Math.round(raw * 1.25 + 6)));
+    var missing = pieces.filter(function (x) { return x.pts === 0; }).length;
+    var level = prep < 15 ? 'Risco crítico' : prep < 25 ? 'Risco alto' : 'Risco moderado';
+    return {
+      score: prep, n: prep, vuln: prep, prep: prep, missing: missing,
+      key: prep < 15 ? 'critico' : prep < 25 ? 'alto' : 'moderado',
+      level: level, name: level,
+      h: 'Hoje você está só <span class="soft">' + prep + '% preparado</span> para entrar no mercado.',
+      p: 'Segundo reguladores europeus, <b>de 74% a 89% das pessoas comuns perdem dinheiro</b> operando sem preparo. Com ' + prep + '% de preparo, você começaria do mesmo jeito que elas. Os ' + (100 - prep) + '% que faltam estão nas 5 peças abaixo.',
+      pieces: pieces
+    };
   }
 
   /* ---------------------------------------------------------------- palco */
@@ -301,16 +309,21 @@
   /* ---------------------------------------------------------------- análise */
   function finishQuiz() {
     var r = compute(answers);
-    O.state.set({ answers: answers, score: r.n, profile: { key: r.key, name: r.name, level: r.level }, quizDoneAt: Date.now() });
-    O.sb.lead({ stage: 'quiz_completed', answers: answers, score: r.n, profile: r.name });
-    O.sb.event('quiz_complete', null, { habits: r.n, profile: r.key });
-    O.track('QuizComplete', { habits: r.n, profile: r.key });
+    O.state.set({ answers: answers, score: r.vuln, profile: { key: r.key, name: r.name, level: r.level }, quizDoneAt: Date.now() });
+    O.sb.lead({ stage: 'quiz_completed', answers: answers, score: r.vuln, profile: r.name });
+    O.sb.event('quiz_complete', null, { vuln: r.vuln, profile: r.key });
+    O.track('QuizComplete', { vuln: r.vuln, profile: r.key });
     renderAnalysis(r);
   }
 
   function renderAnalysis(r) {
     phase('analysis', 'Analisando');
-    var steps = ['Entendendo o seu momento', 'Vendo como você começaria', 'Comparando com os hábitos de quem perde dinheiro', 'Montando o seu resultado'];
+    var steps = [
+      'Entendendo o seu momento',
+      'Vendo como você começaria',
+      'Conferindo as 5 peças de quem entra preparado',
+      'Calculando o seu nível de preparo'
+    ];
     var el = swap(
       '<div class="an">' +
         '<div class="an-orbit"><svg viewBox="0 0 150 150" fill="none"><circle cx="75" cy="75" r="68" stroke="rgba(255,255,255,.12)" stroke-width="1"/><path d="M75 7a68 68 0 0 1 68 68" stroke="url(#ag)" stroke-width="2" stroke-linecap="round"/><circle cx="143" cy="75" r="5" fill="#fff"/><circle cx="27" cy="27" r="3.5" stroke="#B9BCF4" stroke-width="1.4"/><defs><linearGradient id="ag" x1="75" y1="7" x2="143" y2="75"><stop stop-color="#B9BCF4" stop-opacity="0"/><stop offset="1" stop-color="#fff"/></linearGradient></defs></svg><b class="tnum" id="anPct">0%</b></div>' +
@@ -350,16 +363,19 @@
     var el = swap(
       '<div class="cap"><div class="cap-card sheet">' +
         '<span class="cap-badge">' + I.lock + 'Resultado pronto</span>' +
-        '<h2 class="hx cap-h" tabindex="-1" data-focus>Seu resultado <span class="acc">está pronto.</span></h2>' +
-        '<p class="cap-p">Deixe seu contato para ver quantos dos 5 hábitos de quem perde dinheiro você tem. É por ele que avisamos quando a porta da Off Society abrir ou fechar.</p>' +
+        '<h2 class="hx cap-h" tabindex="-1" data-focus>Seu nível de preparo <span class="acc">está calculado.</span></h2>' +
+        '<p class="cap-p">Deixe seu contato para ver o quanto você está preparado para entrar no mercado e receber a mensagem do Naio sobre o seu resultado.</p>' +
         '<form class="cap-form" novalidate>' +
           '<label class="field" data-f="name"><span>Primeiro nome</span><input name="name" autocomplete="given-name" placeholder="Como você quer ser chamado" value="' + esc(s.name || '') + '" required><em class="err-msg">Digite seu nome.</em></label>' +
           '<label class="field" data-f="whatsapp"><span>WhatsApp com DDD' + (lc.requireWhatsapp === false ? ' (opcional)' : '') + '</span><input name="whatsapp" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="(11) 91234-5678" value="' + esc(s.whatsapp || '') + '"><em class="err-msg">Confira o número com DDD.</em></label>' +
           '<label class="field" data-f="email"><span>E-mail' + (lc.emailRequired ? '' : ' (opcional)') + '</span><input name="email" type="email" inputmode="email" autocomplete="email" placeholder="voce@email.com" value="' + esc(s.email || '') + '"><em class="err-msg">Confira o e-mail.</em></label>' +
           '<button class="btn btn-dark btn-xl btn-block" type="submit">Ver meu resultado ' + I.next + '</button>' +
-          '<p class="cap-legal">Seus dados ficam só com a Off Society. Nada de spam, e você pode pedir a exclusão quando quiser.</p>' +
+          '<p class="cap-legal">Seus dados ficam protegidos com a Off Society. Nada de spam, e você pode solicitar a exclusão a qualquer momento.</p>' +
         '</form>' +
-        '<div class="cap-blur" aria-hidden="true"><b class="tnum">' + r.n + '/5</b><span>hábitos de quem perde · <b style="filter:blur(5px)">' + esc(r.level) + '</b></span></div>' +
+        '<div class="cap-blur" aria-hidden="true">' +
+          '<b class="tnum">' + r.vuln + '%</b>' +
+          '<span>Nível de preparo · <b style="filter:blur(5px); color:#FF4D5E">' + esc(r.level) + '</b></span>' +
+        '</div>' +
       '</div></div>');
 
     var form = el.querySelector('form');
@@ -376,99 +392,126 @@
       flag('whatsapp', (lc.requireWhatsapp !== false || wa.length) ? !(wa.length === 10 || wa.length === 11) : false);
       flag('email', (lc.emailRequired || email.length) ? !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) : false);
       if (!ok) { var f = form.querySelector('.err input'); if (f) f.focus(); return; }
-      O.state.set({ name: name, whatsapp: wa ? maskPhone(wa) : '', email: email });
-      O.sb.lead({ stage: 'lead_captured', name: name, whatsapp: wa ? '+55' + wa : '', email: email, answers: answers, score: r.n, profile: r.name });
+      O.state.set({ name: name, whatsapp: wa ? maskPhone(wa) : '', email: email, score: r.vuln });
+      O.sb.lead({ stage: 'lead_captured', name: name, whatsapp: wa ? '+55' + wa : '', email: email, answers: answers, score: r.vuln, profile: r.name });
       O.sb.event('lead_captured');
       O.track('Lead', { content_name: 'Diagnóstico', profile: r.key });
       renderResult(r);
     });
   }
 
-  /* ---------------------------------------------------------------- resultado */
+  /* ---------------------------------------------------------------- resultado: nível de preparo */
   function renderResult(r) {
     phase('result', 'Seu resultado');
     var name = O.firstName(O.state.get().name);
-    var lbl = { detected: '⚠ Detectado', risk: 'Atenção', ok: 'Seguro' };
-    var AUD = window.OFF_AUDIOS || {};
-    var aud = Object.keys(AUD).some(function (k) { return !!AUD[k].src; });
-    // arco dividido em 5 segmentos (um por hábito)
-    var R = 170, segs = '', gap = 0.035;
-    for (var s = 0; s < 5; s++) {
-      var a0 = Math.PI - (s / 5) * Math.PI - (s ? gap : 0) * 0.5, a1 = Math.PI - ((s + 1) / 5) * Math.PI + (s < 4 ? gap : 0) * 0.5;
-      var x0 = 200 + R * Math.cos(a0), y0 = 200 - R * Math.sin(a0), x1 = 200 + R * Math.cos(a1), y1 = 200 - R * Math.sin(a1);
-      segs += '<path class="g-seg" data-i="' + s + '" d="M' + x0.toFixed(1) + ' ' + y0.toFixed(1) + ' A' + R + ' ' + R + ' 0 0 1 ' + x1.toFixed(1) + ' ' + y1.toFixed(1) + '"/>';
-    }
-    var rows = r.traps.map(function (t, k) {
-      return '<li class="row"><button class="row-h trap" type="button" aria-expanded="false">' +
-        '<span class="idx">' + pad(k + 1) + '</span>' +
-        '<span class="row-t"><small>Hábito ' + pad(k + 1) + '</small><b>' + esc(t.t) + '</b></span>' +
-        '<span class="trap-status ' + t.s + '">' + lbl[t.s] + '</span>' +
-        '<span class="row-a">' + I.arrow + '</span></button>' +
-        '<div class="row-b"><div><div class="row-in"><p>' + esc(t.x) + '</p></div></div></div></li>';
+    var ARW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>';
+
+    var cardsHtml = r.pieces.map(function (x, i) {
+      var miss = x.pts === 0;
+      return '<div class="orbit-audit-card">' +
+        '<div class="orbit-audit-card-top"><span class="orbit-card-num">' + pad(i + 1) + '</span><span class="orbit-arrow-badge">' + ARW + '</span></div>' +
+        '<div class="orbit-audit-tag-row"><span class="orbit-card-tag">' + esc(x.tag) + '</span>' +
+          '<span class="orbit-card-status ' + (miss ? 'critical' : 'warning') + '">' + (miss ? 'Falta' : 'Incompleta') + '</span></div>' +
+        '<h3 class="orbit-card-title">' + esc(x.t) + '</h3>' +
+        '<p class="orbit-card-desc">' + esc(x.why) + '</p>' +
+        '<p class="orbit-card-fix"><b>Na Off Society:</b> ' + esc(x.fix) + '</p>' +
+      '</div>';
     }).join('');
 
-    var warnIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>';
-    var warnText = r.n >= 3
-      ? 'Você está no caminho exato de quem perde tudo. Se não mudar isso agora, a estatística não vai perdoar.'
-      : r.n >= 1
-        ? 'Você está a poucos passos de cometer erros que custam caro. Quanto antes corrigir, melhor.'
-        : '';
+    var w = C.entryWindow || {};
+    var doorTxt = 'A Off Society abre em janelas. Fora delas, só lista de espera.';
+    if (w.closesAt && !O.windowClosed()) {
+      var d = new Date(w.closesAt);
+      doorTxt = 'A janela atual fecha em ' + d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' }) + '. Depois, só lista de espera.';
+    }
+    var complete = 5 - r.missing;
 
     var el = swap(
-      '<div class="res">' +
-        '<div class="res-top">' +
-          '<div class="gauge g-habits" data-reveal>' +
-            '<svg viewBox="0 0 400 220"><defs><filter id="gl"><feGaussianBlur stdDeviation="6"/></filter></defs>' +
-              '<g class="g-bg">' + segs + '</g><g class="g-fill" filter="url(#gl)" opacity=".6">' + segs + '</g><g class="g-fill">' + segs + '</g>' +
-            '</svg>' +
-            '<div class="gauge-num"><b class="tnum"><span id="gNum">0</span><small class="gauge-pct">/5</small></b><span>hábitos de quem perde dinheiro</span></div>' +
+      '<div class="res orbit-res">' +
+        '<div class="orbit-hero" data-reveal>' +
+          '<div class="orbit-badge-pill"><span class="orbit-pulse-dot"></span>' +
+            '<span>SEU RESULTADO' + (name ? ' · ' + esc(name).toUpperCase() : '') + ' · ' + esc(r.level).toUpperCase() + '</span></div>' +
+          '<h1 class="hx res-h" tabindex="-1" data-focus>' + r.h + '</h1>' +
+          '<p class="res-p">' + r.p + '</p>' +
+        '</div>' +
+
+        '<div class="orbit-laptop-grid" data-reveal style="--d:.15s">' +
+          '<div class="orbit-metric-box alert-box">' +
+            '<div class="orbit-metric-head"><span class="orbit-status-label">Seu nível de preparo</span><span class="orbit-dot-alert"></span></div>' +
+            '<div class="orbit-num-wrap"><b class="orbit-huge-num tnum"><span id="vulnCounter">0</span><small class="pct">%</small></b></div>' +
+            '<div class="orbit-metric-title">Preparado para entrar no mercado</div>' +
+            '<p class="orbit-metric-desc">Calculado pelas 5 peças que separam quem se protege de quem perde. Pronto para começar é 100%.</p>' +
           '</div>' +
-          '<div data-reveal style="--d:.1s">' +
-            '<span class="pill-live lvl-' + r.key + '"><i class="dot-live"></i>' + (name ? esc(name) + ' · ' : '') + '<b>' + esc(r.level) + '</b></span>' +
-            '<h1 class="hx res-h" tabindex="-1" data-focus>' + r.h + '</h1>' +
-            '<p class="res-p">' + r.p + '</p>' +
-            (warnText ? '<div class="res-warn">' + warnIcon + '<span>' + warnText + '</span></div>' : '') +
+          '<div class="orbit-metric-box neutral-box">' +
+            '<div class="orbit-metric-head"><span class="orbit-status-label">Quem entra sem preparo</span><span class="orbit-tag-micro">Reguladores</span></div>' +
+            '<div class="orbit-num-wrap"><b class="orbit-huge-num tnum">74–89<small class="pct">%</small></b></div>' +
+            '<div class="orbit-metric-title">Perdem dinheiro</div>' +
+            '<p class="orbit-metric-desc">das contas de pessoas comuns em operações de risco, segundo reguladores europeus (ESMA).</p>' +
+          '</div>' +
+          '<div class="orbit-metric-box solution-box">' +
+            '<div class="orbit-metric-head"><span class="orbit-status-label">Custo de aprender sozinho</span><span class="orbit-tag-micro accent">Naio</span></div>' +
+            '<div class="orbit-num-wrap"><b class="orbit-huge-num tnum">R$ 20<small class="plus">k+</small></b></div>' +
+            '<div class="orbit-metric-title">Perdidos pelo Naio</div>' +
+            '<p class="orbit-metric-desc">O que ele pagou por começar sem método e sem ninguém do lado.</p>' +
           '</div>' +
         '</div>' +
-        '<div class="res-sheet sheet" data-reveal style="--d:.2s">' +
-          '<div class="res-sheet-h"><h2 class="hx h3">Os 5 hábitos de <span class="acc">quem perde dinheiro</span></h2><span class="meta">Toque em cada um</span></div>' +
-          '<ul class="rows">' + rows + '</ul>' +
+
+        '<div class="urg" data-reveal style="--d:.2s">' +
+          '<div class="urg-head"><span class="urg-kicker"><i></i>Por que resolver isso agora</span></div>' +
+          '<div class="urg-grid">' +
+            '<div class="urg-item"><b class="tnum">1,6 mi</b><h3>A próxima queda não avisa.</h3><p>Em 10 de outubro de 2025, 1,6 milhão de pessoas perderam dinheiro em 24 horas. Quem estava despreparado caiu junto.</p></div>' +
+            '<div class="urg-item"><b class="tnum">R$ 505 bi</b><h3>A manada está crescendo.</h3><p>Foi o que brasileiros movimentaram em cripto em 2025, quase o dobro de 2023. Cada vez mais gente entra pela dica dos outros.</p></div>' +
+            '<div class="urg-item"><b>Janela</b><h3>A porta abre poucas vezes.</h3><p>' + esc(doorTxt) + '</p></div>' +
+          '</div>' +
         '</div>' +
-        '<div class="res-next" data-reveal style="--d:.3s">' +
-          '<div class="res-av"><img src="assets/img/naio-avatar.webp" alt=""><i>' + (aud ? I.mic : I.msg) + '</i></div>' +
-          '<div><b>O Naio quer falar com você sobre esse resultado.</b>' +
-            '<span>Ele já passou por tudo isso e pode te mostrar o que está errado.</span></div>' +
-          '<a class="btn btn-light btn-xl" href="' + O.withUtm('chat.html') + '" id="toChat">Falar com o Naio agora ' + I.next + '</a>' +
+
+        '<div class="sheet orbit-sheet" data-reveal style="--d:.25s">' +
+          '<div class="orbit-sheet-header">' +
+            '<div class="orbit-sheet-kicker">O QUE FALTA PARA VOCÊ CHEGAR A 100%</div>' +
+            '<h2 class="hx h2 orbit-sheet-title">As 5 peças de quem <span class="acc">entra preparado</span></h2>' +
+            '<p class="lead orbit-sheet-lead">' + (complete === 0
+              ? 'Hoje faltam as 5. É normal para quem está começando, e é exatamente o que se resolve antes de colocar um real.'
+              : 'Você tem ' + complete + ' de 5 peças encaminhadas, mas nenhuma completa. Veja o que falta e como a Off Society resolve cada uma.') + '</p>' +
+          '</div>' +
+          '<div class="orbit-audit-grid">' + cardsHtml + '</div>' +
+        '</div>' +
+
+        '<div class="orbit-expert-box" data-reveal style="--d:.35s">' +
+          '<div class="orbit-expert-top">' +
+            '<div class="orbit-expert-avatar-wrap">' +
+              '<img src="assets/img/naio-avatar.webp" alt="Naio Rezende" class="orbit-avatar-img">' +
+              '<span class="orbit-live-badge"><i class="orbit-pulse-mini"></i> 1 nova</span>' +
+            '</div>' +
+            '<div class="orbit-expert-meta">' +
+              '<span class="orbit-expert-kicker">MENSAGEM DO NAIO</span>' +
+              '<h3 class="orbit-expert-title">O Naio deixou um recado sobre o seu resultado.</h3>' +
+              '<p class="orbit-expert-quote">Como sair de ' + r.prep + '% para pronto, começando no modo treino, com dinheiro de mentira. Do zero e sem palavra difícil.</p>' +
+            '</div>' +
+          '</div>' +
+          '<div class="orbit-expert-action">' +
+            '<a class="btn btn-light btn-xl orbit-action-btn" href="' + O.withUtm('chat.html') + '" id="toChat">' +
+              '<span>Ver a mensagem do Naio</span>' +
+              '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>' +
+            '</a>' +
+            '<span class="orbit-action-micro">Mensagens protegidas · leva uns 5 minutos</span>' +
+          '</div>' +
         '</div>' +
       '</div>');
 
-    el.querySelectorAll('.row-h').forEach(function (b) {
-      b.addEventListener('click', function () {
-        var li = b.parentNode;
-        var open = !li.classList.contains('is-open');
-        li.classList.toggle('is-open', open);
-        b.setAttribute('aria-expanded', open);
-      });
-    });
-    var auto = Array.prototype.find.call(el.querySelectorAll('.row'), function (li) { return li.querySelector('.trap-status.detected'); }) || el.querySelector('.row');
-    if (auto) setTimeout(function () { auto.querySelector('.row-h').click(); }, 1500);
     el.querySelector('#toChat').addEventListener('click', function () { O.sb.event('to_chat'); });
 
-    // acende um segmento por hábito com delay dramático
-    var num = el.querySelector('#gNum');
-    var fills = el.querySelectorAll('.g-fill .g-seg');
-    var k = 0;
-    function step() {
-      if (k >= r.n) return;
-      fills.forEach(function (p) { if (+p.getAttribute('data-i') === k) p.classList.add('on'); });
-      k++;
-      num.textContent = k;
-      // vibração sutil no número ao incrementar
-      num.style.transform = 'scale(1.15)';
-      setTimeout(function () { num.style.transform = ''; }, 200);
-      setTimeout(step, O.reduceMotion ? 0 : 550);
+    // contagem do nível de preparo
+    var counterEl = el.querySelector('#vulnCounter');
+    var target = r.prep;
+    var duration = O.reduceMotion ? 200 : 1600;
+    var startT = performance.now();
+    function animateCount(now) {
+      var k = Math.min(1, (now - startT) / duration);
+      if (counterEl) counterEl.textContent = Math.round((1 - Math.pow(1 - k, 3)) * target);
+      if (k < 1) requestAnimationFrame(animateCount);
+      else if (counterEl) { counterEl.textContent = target; counterEl.classList.add('is-final'); }
     }
-    setTimeout(step, 700);
+    requestAnimationFrame(animateCount);
   }
 
   /* ---------------------------------------------------------------- início */

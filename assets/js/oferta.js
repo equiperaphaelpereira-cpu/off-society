@@ -29,7 +29,7 @@
   }
 
   /* ------------------------------------------------ personalização */
-  if (S.score != null) { var hs = $('#heroScore'); if (hs) hs.textContent = S.score + '/100'; }
+  if (S.score != null) { var hs = $('#heroScore'); if (hs) hs.textContent = S.score + '%'; }
   else $$('.hero-chip').forEach(function (e) { e.hidden = true; });
 
   /* ------------------------------------------------ janela de entrada */

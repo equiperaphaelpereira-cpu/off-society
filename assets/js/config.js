@@ -39,7 +39,7 @@ window.OFF_CONFIG = {
 
   /* ---------- Checkout ---------- */
   checkout: {
-    url: '',                   // DEFINIR: link do checkout (Hotmart, Kiwify, Eduzz, Stripe...)
+    url: 'https://pay.cakto.com.br/8vqozc4',   // checkout Cakto
     // Nomes dos parâmetros de pré-preenchimento aceitos pela sua plataforma.
     // Hotmart: name / email / phonenumber · Kiwify: name / email / phone
     params: { name: 'name', email: 'email', phone: 'phone' },

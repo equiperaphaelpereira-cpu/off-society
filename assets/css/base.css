@@ -329,3 +329,6 @@ p { margin: 0; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
+
+/* evita rolagem lateral no iOS (elementos decorativos maiores que a tela) */
+html, body { overflow-x: clip; }

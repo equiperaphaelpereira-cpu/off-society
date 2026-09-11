@@ -347,8 +347,8 @@
   function salaVideo() {
     if (!C.videos || !C.videos.salaOff || !window.OFFMedia) return Promise.resolve();
     return indicator('text', 1400).then(function () {
-      var m = add('<div class="media video"><div class="mv-host"></div><div class="cap"><b>Trecho de uma Sala Off</b><span>ao vivo</span></div></div>', 'bot');
-      var player = window.OFFMedia.mount(m.querySelector('.mv-host'), { url: C.videos.salaOff, poster: C.videos.salaOffPoster, title: 'Sala Off', source: 'chat' });
+      var m = add('<div class="media video"><div class="mv-host"></div><div class="cap"><b>Trecho de um meet fechado</b><span>ao vivo</span></div></div>', 'bot');
+      var player = window.OFFMedia.mount(m.querySelector('.mv-host'), { url: C.videos.salaOff, poster: C.videos.salaOffPoster, title: 'Meet fechado', source: 'chat' });
       return mediaWait(player, 9000, 90000);
     });
   }
@@ -539,7 +539,7 @@
       var sl = document.getElementById('sideLead');
       if (sl) sl.textContent = 'Mensagens do Naio sobre o seu diagnóstico.';
       var pn = document.getElementById('phNote');
-      if (pn) pn.lastChild.nodeValue = 'Mensagens do Naio para quem fez o diagnóstico.';
+      if (pn) pn.lastChild.nodeValue = 'Mensagens protegidas';
     }
     chapter(1);
     await wait(1300);
@@ -557,19 +557,15 @@
     }
 
     await say('Acabei de ver seu diagnóstico...');
-    if (S.score != null && S.score <= 5) {
-      await say(S.score > 0
-        ? 'Você tem ' + S.score + ' dos 5 hábitos de quem perde dinheiro no mercado.'
-        : 'Você não tem nenhum dos 5 hábitos de quem perde dinheiro. Ótimo começo.');
-      if (S.score >= 2) await say('Calma, isso tem conserto. E é mais simples do que parece.');
+    if (typeof S.score === 'number') {
+      await say('Você está só ' + S.score + '% preparado pra entrar no mercado hoje.');
+      await say('Com esse nível, você entraria do mesmo jeito que a maioria que perde dinheiro: sem método, sem proteção e sem ninguém do lado.');
     }
+    await say('A boa notícia: dá pra resolver isso antes de você colocar um centavo.');
     await audio('a1');
     await say(entryLine());
 
-    var reaction = await choices([
-      { l: 'Me conta mais', v: 'mais' },
-      { l: 'Por que a maioria perde?', v: 'porque' }
-    ]);
+    var reaction = await choices([{ l: 'Me conta mais', v: 'mais' }]);
     chat.reacao = reaction.v;
     save();
     await say('Então deixa eu te contar a minha história.');

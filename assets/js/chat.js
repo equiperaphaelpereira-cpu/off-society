@@ -75,8 +75,11 @@
     return m;
   }
 
+  var instant = true; // a primeira mensagem já chega "digitando", sem pausa
   function indicator(kind, ms) {
-    return thinkPause().then(function () {
+    var pause = instant ? Promise.resolve() : thinkPause();
+    instant = false;
+    return pause.then(function () {
       markRead();
       var prev = lastWho;
       var m = add(kind === 'audio'
@@ -555,7 +558,6 @@
       if (pn) pn.lastChild.nodeValue = 'Mensagens protegidas';
     }
     chapter(1);
-    await wait(1300);
 
     // 01 · seu resultado
     if (!name) {

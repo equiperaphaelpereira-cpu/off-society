@@ -150,7 +150,7 @@
         pts: a.entry === 'alguem' ? 6 : 0,
         why: (a.entry === 'dica' || a.entry === 'influencer')
           ? 'Dica de amigo ou de influenciador não é acompanhamento. Quando o preço vira, você está sozinho.'
-          : 'Foi a peça que faltou para o Naio quando ele perdeu mais de R$ 20 mil.',
+          : 'Sozinho, cada erro sai do seu bolso. Com alguém experiente do lado, você aprende com o erro dos outros.',
         fix: 'Meet fechado ao vivo com o Naio, de segunda a sexta, com perguntas no final.' },
       { tag: 'Peça 04', t: 'Treinar sem arriscar dinheiro',
         pts: { pequeno: 8, naosei: 6 }[a.capital] || 0,
@@ -173,8 +173,8 @@
       score: prep, n: prep, vuln: prep, prep: prep, missing: missing,
       key: prep < 15 ? 'critico' : prep < 25 ? 'alto' : 'moderado',
       level: level, name: level,
-      h: 'Hoje você está só <span class="soft">' + prep + '% preparado</span> para entrar no mercado.',
-      p: 'Segundo reguladores europeus, <b>de 74% a 89% das pessoas comuns perdem dinheiro</b> operando sem preparo. Com ' + prep + '% de preparo, você começaria do mesmo jeito que elas. Os ' + (100 - prep) + '% que faltam estão nas 5 peças abaixo.',
+      h: 'Enquanto o seu dinheiro fica parado, <span class="soft">ele perde valor.</span>',
+      p: 'Entre 2020 e 2024, a inflação somou 33,5% e o real perdeu mais de um terço do valor frente ao dólar. Quem depende de uma renda só, em uma moeda só, fica exposto a tudo isso. <b>Diversificar virou questão de segurança.</b> E hoje você está só ' + prep + '% preparado para dar esse passo.',
       pieces: pieces
     };
   }
@@ -401,30 +401,19 @@
   }
 
   /* ---------------------------------------------------------------- resultado: nível de preparo */
+  // Dados reais para "quanto o dinheiro parado perde" (nunca promessa de ganho operando):
+  // IPCA/IBGE acumulado 2020–2024 = 33,47% · dólar PTAX/BCB: 4,03 (31/12/2019) → 6,19 (30/12/2024)
+  var IPCA_5A = 1.3347, USD_2019 = 4.03, USD_2024 = 6.19, INFL_ANO = Math.pow(IPCA_5A, 1 / 5) - 1;
+
   function renderResult(r) {
     phase('result', 'Seu resultado');
     var name = O.firstName(O.state.get().name);
-    var ARW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>';
-
-    var cardsHtml = r.pieces.map(function (x, i) {
-      var miss = x.pts === 0;
-      return '<div class="orbit-audit-card">' +
-        '<div class="orbit-audit-card-top"><span class="orbit-card-num">' + pad(i + 1) + '</span><span class="orbit-arrow-badge">' + ARW + '</span></div>' +
-        '<div class="orbit-audit-tag-row"><span class="orbit-card-tag">' + esc(x.tag) + '</span>' +
-          '<span class="orbit-card-status ' + (miss ? 'critical' : 'warning') + '">' + (miss ? 'Falta' : 'Incompleta') + '</span></div>' +
-        '<h3 class="orbit-card-title">' + esc(x.t) + '</h3>' +
-        '<p class="orbit-card-desc">' + esc(x.why) + '</p>' +
-        '<p class="orbit-card-fix"><b>Na Off Society:</b> ' + esc(x.fix) + '</p>' +
-      '</div>';
-    }).join('');
-
     var w = C.entryWindow || {};
     var doorTxt = 'A Off Society abre em janelas. Fora delas, só lista de espera.';
     if (w.closesAt && !O.windowClosed()) {
       var d = new Date(w.closesAt);
       doorTxt = 'A janela atual fecha em ' + d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' }) + '. Depois, só lista de espera.';
     }
-    var complete = 5 - r.missing;
 
     var el = swap(
       '<div class="res orbit-res">' +
@@ -435,48 +424,53 @@
           '<p class="res-p">' + r.p + '</p>' +
         '</div>' +
 
-        '<div class="orbit-laptop-grid" data-reveal style="--d:.15s">' +
+        '<div class="orbit-laptop-grid" data-reveal style="--d:.12s">' +
           '<div class="orbit-metric-box alert-box">' +
             '<div class="orbit-metric-head"><span class="orbit-status-label">Seu nível de preparo</span><span class="orbit-dot-alert"></span></div>' +
             '<div class="orbit-num-wrap"><b class="orbit-huge-num tnum"><span id="vulnCounter">0</span><small class="pct">%</small></b></div>' +
-            '<div class="orbit-metric-title">Preparado para entrar no mercado</div>' +
-            '<p class="orbit-metric-desc">Calculado pelas 5 peças que separam quem se protege de quem perde. Pronto para começar é 100%.</p>' +
+            '<div class="orbit-metric-title">Preparado para diversificar</div>' +
+            '<p class="orbit-metric-desc">Pelas suas respostas, ainda faltam método, proteção e alguém experiente do lado.</p>' +
           '</div>' +
           '<div class="orbit-metric-box neutral-box">' +
-            '<div class="orbit-metric-head"><span class="orbit-status-label">Quem entra sem preparo</span><span class="orbit-tag-micro">Reguladores</span></div>' +
-            '<div class="orbit-num-wrap"><b class="orbit-huge-num tnum">74–89<small class="pct">%</small></b></div>' +
-            '<div class="orbit-metric-title">Perdem dinheiro</div>' +
-            '<p class="orbit-metric-desc">das contas de pessoas comuns em operações de risco, segundo reguladores europeus (ESMA).</p>' +
+            '<div class="orbit-metric-head"><span class="orbit-status-label">Inflação 2020–2024</span><span class="orbit-tag-micro">IBGE</span></div>' +
+            '<div class="orbit-num-wrap"><b class="orbit-huge-num tnum">33,5<small class="pct">%</small></b></div>' +
+            '<div class="orbit-metric-title">Alta nos preços</div>' +
+            '<p class="orbit-metric-desc">O que custava R$ 100 passou a custar R$ 133.</p>' +
           '</div>' +
-          '<div class="orbit-metric-box solution-box">' +
-            '<div class="orbit-metric-head"><span class="orbit-status-label">Custo de aprender sozinho</span><span class="orbit-tag-micro accent">Naio</span></div>' +
-            '<div class="orbit-num-wrap"><b class="orbit-huge-num tnum">R$ 20<small class="plus">k+</small></b></div>' +
-            '<div class="orbit-metric-title">Perdidos pelo Naio</div>' +
-            '<p class="orbit-metric-desc">O que ele pagou por começar sem método e sem ninguém do lado.</p>' +
+          '<div class="orbit-metric-box neutral-box">' +
+            '<div class="orbit-metric-head"><span class="orbit-status-label">Real frente ao dólar</span><span class="orbit-tag-micro">Banco Central</span></div>' +
+            '<div class="orbit-num-wrap"><b class="orbit-huge-num tnum">−35<small class="pct">%</small></b></div>' +
+            '<div class="orbit-metric-title">Perda de valor</div>' +
+            '<p class="orbit-metric-desc">O dólar foi de R$ 4,03 para R$ 6,19, do fim de 2019 ao fim de 2024.</p>' +
           '</div>' +
         '</div>' +
 
-        '<div class="urg" data-reveal style="--d:.2s">' +
+        '<div class="sheet lossc" data-reveal style="--d:.2s">' +
+          '<div class="lossc-head">' +
+            '<span class="orbit-sheet-kicker">QUANTO O SEU DINHEIRO PARADO PERDEU</span>' +
+            '<h2 class="hx h3">Coloque um valor e veja <span class="acc">na prática.</span></h2>' +
+          '</div>' +
+          '<label class="lossc-in"><span>Quanto você tem guardado (ou ganha por mês)</span>' +
+            '<b class="tnum" id="lcVal">R$ 5.000</b>' +
+            '<input type="range" id="lcRange" min="500" max="100000" step="500" value="5000" aria-label="Valor"></label>' +
+          '<div class="lossc-out">' +
+            '<div><small>Para comprar hoje o que isso comprava em 2020</small><b class="tnum" id="lcInfl">—</b></div>' +
+            '<div class="hl"><small>Se estivesse em dólar desde o fim de 2019</small><b class="tnum" id="lcUsd">—</b></div>' +
+            '<div class="mk"><small>Um único dia de mercado (movimento de 2%)</small><b class="tnum"><span class="up" id="lcUp">—</span><span class="dn" id="lcDn">—</span></b><em>O mesmo movimento que pode somar também pode tirar. Por isso você começa no modo treino.</em></div>' +
+          '</div>' +
+          '<p class="lossc-note">IPCA/IBGE acumulado 2020–2024 e dólar PTAX/Banco Central. Valores aproximados. O dia de mercado é uma simulação: ganho e perda andam juntos e não há promessa de resultado. Resultado passado não garante resultado futuro.</p>' +
+        '</div>' +
+
+        '<div class="urg" data-reveal style="--d:.25s">' +
           '<div class="urg-head"><span class="urg-kicker"><i></i>Por que resolver isso agora</span></div>' +
           '<div class="urg-grid">' +
-            '<div class="urg-item"><b class="tnum">1,6 mi</b><h3>A próxima queda não avisa.</h3><p>Em 10 de outubro de 2025, 1,6 milhão de pessoas perderam dinheiro em 24 horas. Quem estava despreparado caiu junto.</p></div>' +
-            '<div class="urg-item"><b class="tnum">R$ 505 bi</b><h3>A manada está crescendo.</h3><p>Foi o que brasileiros movimentaram em cripto em 2025, quase o dobro de 2023. Cada vez mais gente entra pela dica dos outros.</p></div>' +
+            '<div class="urg-item"><b class="tnum" id="lcMonth">—</b><h3>Cada mês parado custa.</h3><p>É o que o seu dinheiro perde de poder de compra por mês, na média da inflação de 2020 a 2024.</p></div>' +
+            '<div class="urg-item"><b>1 renda</b><h3>Uma renda só é um risco só.</h3><p>Se ela parar, tudo para junto. Diversificar é ter mais de uma porta aberta.</p></div>' +
             '<div class="urg-item"><b>Janela</b><h3>A porta abre poucas vezes.</h3><p>' + esc(doorTxt) + '</p></div>' +
           '</div>' +
         '</div>' +
 
-        '<div class="sheet orbit-sheet" data-reveal style="--d:.25s">' +
-          '<div class="orbit-sheet-header">' +
-            '<div class="orbit-sheet-kicker">O QUE FALTA PARA VOCÊ CHEGAR A 100%</div>' +
-            '<h2 class="hx h2 orbit-sheet-title">As 5 peças de quem <span class="acc">entra preparado</span></h2>' +
-            '<p class="lead orbit-sheet-lead">' + (complete === 0
-              ? 'Hoje faltam as 5. É normal para quem está começando, e é exatamente o que se resolve antes de colocar um real.'
-              : 'Você tem ' + complete + ' de 5 peças encaminhadas, mas nenhuma completa. Veja o que falta e como a Off Society resolve cada uma.') + '</p>' +
-          '</div>' +
-          '<div class="orbit-audit-grid">' + cardsHtml + '</div>' +
-        '</div>' +
-
-        '<div class="orbit-expert-box" data-reveal style="--d:.35s">' +
+        '<div class="orbit-expert-box" data-reveal style="--d:.3s">' +
           '<div class="orbit-expert-top">' +
             '<div class="orbit-expert-avatar-wrap">' +
               '<img src="assets/img/naio-avatar.webp" alt="Naio Rezende" class="orbit-avatar-img">' +
@@ -484,8 +478,8 @@
             '</div>' +
             '<div class="orbit-expert-meta">' +
               '<span class="orbit-expert-kicker">MENSAGEM DO NAIO</span>' +
-              '<h3 class="orbit-expert-title">O Naio deixou um recado sobre o seu resultado.</h3>' +
-              '<p class="orbit-expert-quote">Como sair de ' + r.prep + '% para pronto, começando no modo treino, com dinheiro de mentira. Do zero e sem palavra difícil.</p>' +
+              '<h3 class="orbit-expert-title">Como começar a diversificar com segurança.</h3>' +
+              '<p class="orbit-expert-quote">Do zero, sem palavra difícil, começando no modo treino com dinheiro de mentira.</p>' +
             '</div>' +
           '</div>' +
           '<div class="orbit-expert-action">' +
@@ -499,6 +493,23 @@
       '</div>');
 
     el.querySelector('#toChat').addEventListener('click', function () { O.sb.event('to_chat'); });
+
+    // calculadora do dinheiro parado
+    var range = el.querySelector('#lcRange');
+    function money(v) { return O.brl0(Math.round(v)); }
+    function calc() {
+      var v = +range.value;
+      el.querySelector('#lcVal').textContent = money(v);
+      el.querySelector('#lcInfl').textContent = money(v * IPCA_5A);
+      el.querySelector('#lcUsd').textContent = money(v / USD_2019 * USD_2024);
+      el.querySelector('#lcUp').textContent = '+' + money(v * 0.02);
+      el.querySelector('#lcDn').textContent = '−' + money(v * 0.02);
+      el.querySelector('#lcMonth').textContent = money(v * (Math.pow(1 + INFL_ANO, 1 / 12) - 1)) + '/mês';
+      range.style.setProperty('--p', ((v - range.min) / (range.max - range.min) * 100) + '%');
+    }
+    range.addEventListener('input', calc);
+    range.addEventListener('change', function () { O.sb.event('loss_calc', null, { v: +range.value }); });
+    calc();
 
     // contagem do nível de preparo
     var counterEl = el.querySelector('#vulnCounter');
